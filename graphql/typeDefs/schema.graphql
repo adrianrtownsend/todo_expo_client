@@ -1,0 +1,81 @@
+type Tag {
+  id: Int
+  name: String
+  isVisible: Boolean
+}
+
+type Todo {
+  id: Int
+  title: String
+  description: String
+  isCompleted: Boolean
+  user: User
+  tags: [Tag]
+}
+
+type User {
+  id: Int
+  username: String
+  email: String
+  firstName: String
+  lastName: String
+  password: String
+  isPrivate: Boolean
+  todos: [Todo]
+  followers: [User]
+}
+
+type tagQueries {
+  tags: [Tag]
+  tagById: Tag
+}
+
+type Query {
+  users: [User]
+  user(id: Int!): User
+  todos: [Todo]
+  todo(id: Int!): Todo
+  todosByUserId(userId: Int!): [Todo]
+  tags: [Tag]
+  tag(id: Int!): Tag
+  # userTodos(id: Int!, isCompleted: Boolean, tagIDs: [ID!]): [Todo]
+}
+
+type Mutation {
+  createUser(
+    username: String!
+    email: String!
+    firstName: String!
+    lastName: String!
+    password: String!
+    isPrivate: Boolean
+  ): User!
+  updateUser(
+    id: Int!
+    username: String
+    email: String
+    firstName: String
+    lastName: String
+    password: String
+    isPrivate: Boolean
+  ): User!
+  deleteUser(id: Int!): User!
+  createTodo(title: String!, userId: Int!): Todo
+  updateTodo(
+    id: Int!
+    title: String
+    description: Boolean
+    isCompleted: Boolean
+  ): Todo!
+  deleteTodo(id: Int!): Todo!
+  createTag(name: String!, isVisible: Boolean): Tag
+  updateTag(id: Int!, name: String, isVisible: Boolean): Tag!
+  deleteTag(id: Int!): Tag!
+}
+
+type Subscription {
+  todoCreated: Todo
+  todoUpdated: Todo
+  todoDeleted: Todo
+  tagUpdated: Tag
+}
