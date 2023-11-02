@@ -83,26 +83,14 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(firebaseReducer, initialState);
 
   const firebaseConfig = {
-    apiKey: "AIzaSyCTPnE4WBIt5iFFzOH-sQbDyEukwJ2Mi_k",
-    authDomain: "todo-list-demo-fff76.firebaseapp.com",
-    projectId: "todo-list-demo-fff76",
-    storageBucket: "todo-list-demo-fff76.appspot.com",
-    messagingSenderId: "696962301739",
-    appId: "1:696962301739:web:c171b343ab9d809ff08f6e",
-    measurementId: "G-VZ5JJT0HHV",
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
   };
-
-  // const firebaseConfig = {
-  //   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  //   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  //   projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  //   storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  //   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  //   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-  //   measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
-  // };
-
-  console.log("firebaseConfig: ", firebaseConfig);
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);

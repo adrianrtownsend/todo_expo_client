@@ -25,6 +25,7 @@ cd advanced-todo-expo-app
   - [Local Development](#local-development)
   - [Linting](#linting)
   - [CI/CD Deployment](#cicd-deployment)
+    - [Configure Netlify deployment](#configure-netlify-deployment)
 
 ## Requirements and Prerequisites
 
@@ -85,6 +86,20 @@ npm start
 
 ## Linting
 
-[] explain linting and husky
+- [CommitLint Setup](https://commitlint.js.org/#/guides-local-setup)
+- [Husky](https://typicode.github.io/husky/)
 
 ## CI/CD Deployment
+
+This application is hosted on [Netlify](https://www.netlify.com/) along with the [Apollo Server](https://github.com/adrianrtownsend/todo_apollo_server).
+
+### Configure Netlify deployment
+
+- Follow the initial steps listed [here](https://docs.expo.dev/distribution/publishing-websites/#netlify)
+- Once done, retrieve the config values from your Netlify account to add to your environment variables.
+- Add the following environment variables with config values to your list of project secrets
+  ```
+  EXPO_PUBLIC_NETLIFY_ONE=
+  EXPO_PUBLIC_NETLIFY_TWO=
+  EXPO_PUBLIC_NETLIFY_THREE=
+  ```
