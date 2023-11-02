@@ -49,7 +49,7 @@ const Complete = ({ isChecked = false }: CompleteProps) => {
           >
             <Icon
               as={CheckCircle2}
-              size="lg"
+              size="xl"
               color={checked ? "white" : "white"}
               fill={checked ? "green" : "gray"}
             />
