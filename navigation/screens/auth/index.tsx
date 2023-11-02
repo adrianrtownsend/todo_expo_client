@@ -19,7 +19,11 @@ const TodoNavigator = () => {
         component={Dashboard}
         options={{ headerShown: false }}
       />
-      <TodoStack.Screen name="Todo" component={Todo} />
+      <TodoStack.Screen
+        name="Todo"
+        component={Todo}
+        options={{ headerShown: false }}
+      />
     </TodoStack.Navigator>
   );
 };
@@ -40,7 +44,7 @@ const Auth = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === "Dashboard") {
+          if (route.name === "Todo") {
             return <Home />;
           } else if (route.name === "Profile") {
             return <User />;
@@ -49,7 +53,7 @@ const Auth = () => {
       })}
     >
       <Tab.Screen
-        name="Dashboard"
+        name="Todo"
         component={TodoNavigator}
         options={{ headerShown: false }}
       />

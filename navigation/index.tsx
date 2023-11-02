@@ -7,6 +7,7 @@ import ForgotPassword from "./screens/public/ForgotPassword";
 import { View, Text } from "react-native";
 import Auth from "./screens/auth";
 import { useFirebase } from "../contexts/FirebaseContext";
+import { Box } from "@gluestack-ui/themed";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,7 +27,7 @@ const Navigation = (props: {}) => {
       <Stack.Navigator>
         {auth.loading ? (
           <Stack.Screen name="Splash" component={SplashScreen} />
-        ) : !auth.user ? (
+        ) : auth.user ? (
           <Stack.Screen
             name="Auth"
             component={Auth}
@@ -67,6 +68,10 @@ const Navigation = (props: {}) => {
       </Stack.Navigator>
     </NavigationContainer>
   );
+};
+
+const NavigationWrapper = () => {
+  return <></>;
 };
 
 export default Navigation;

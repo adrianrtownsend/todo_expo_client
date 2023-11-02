@@ -6,7 +6,14 @@ import {
   FirebaseProvider,
   useFirebase,
 } from "../../../contexts/FirebaseContext";
-import { Center, Text, Box, Button, ButtonText } from "@gluestack-ui/themed";
+import {
+  Center,
+  Text,
+  Box,
+  Button,
+  ButtonText,
+  ScrollView,
+} from "@gluestack-ui/themed";
 import Carousel from "../../../components/Carousel";
 
 const users = [
@@ -108,15 +115,17 @@ const Dashboard = ({ navigation }) => {
   // const { loading, error, data } = useQuery(GET_TODOS, {});
 
   return (
-    <Center>
-      <TodosCarousel
-        link={"userTodos"}
-        linkLabel={"View Todos"}
-        itemScreen={"Task"}
-      />
-      <UsersCarousel itemScreen={"Profile"} />
-      <StatsCarousel link={"stats"} />
-    </Center>
+    <Box height={"$full"}>
+      <ScrollView>
+        <TodosCarousel
+          link={"userTodos"}
+          linkLabel={"View Todos"}
+          itemScreen={"Task"}
+        />
+        <UsersCarousel itemScreen={"Profile"} />
+        <StatsCarousel link={"stats"} />
+      </ScrollView>
+    </Box>
   );
 };
 

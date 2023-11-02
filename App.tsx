@@ -1,10 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import Navigation from './navigation';
-import { FirebaseProvider, useFirebase } from './contexts/FirebaseContext';
-import { GluestackUIProvider } from '@gluestack-ui/themed';
-import { config } from '@gluestack-ui/config'; // Optional if you want to use default theme
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import Navigation from "./navigation";
+import { FirebaseProvider, useFirebase } from "./contexts/FirebaseContext";
+import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { config } from "@gluestack-ui/config"; // Optional if you want to use default theme
 
 /**
  * Stuff to install
@@ -15,31 +15,34 @@ import { config } from '@gluestack-ui/config'; // Optional if you want to use de
  */
 
 const client = new ApolloClient({
-	// uri: process.env.EXPO_PUBLIC_APOLLO_CLIENT_SERVER_URL,
-	uri: 'http://localhost:4000',
-	cache: new InMemoryCache(),
-	defaultOptions: { watchQuery: { fetchPolicy: 'cache-and-network' } },
+  // uri: process.env.EXPO_PUBLIC_APOLLO_CLIENT_SERVER_URL,
+  uri: "http://localhost:4000",
+  cache: new InMemoryCache(),
+  defaultOptions: { watchQuery: { fetchPolicy: "cache-and-network" } },
+  headers: {
+    apiKey: process.env.EXPO_PUBLIC_API_KEY ?? "",
+  },
 });
 
 export default function App() {
-	return (
-		<SafeAreaView style={{ flex: 1 }}>
-			<FirebaseProvider>
-				<ApolloProvider client={client}>
-					<GluestackUIProvider config={config}>
-						<Navigation />
-					</GluestackUIProvider>
-				</ApolloProvider>
-			</FirebaseProvider>
-		</SafeAreaView>
-	);
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <FirebaseProvider>
+        <ApolloProvider client={client}>
+          <GluestackUIProvider config={config}>
+            <Navigation />
+          </GluestackUIProvider>
+        </ApolloProvider>
+      </FirebaseProvider>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

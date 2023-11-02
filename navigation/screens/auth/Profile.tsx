@@ -9,28 +9,34 @@ import {
 import Avatar from "../../../components/Avatar";
 import { Home, User } from "lucide-react-native";
 import React, { ReactNode } from "react";
+import { useFirebase } from "../../../contexts/FirebaseContext";
 
 interface MenuItemsProps {
   id: number;
   name: string;
   onPress?: ReactNode;
   label?: string;
+  action?: () => ReactNode;
 }
 
-const menuItems = [
-  {
-    id: 1,
-    name: "information",
-    type: "stack",
-  },
-  {
-    id: 2,
-    name: "logout",
-    type: "modal",
-  },
-];
-
 const Profile = ({ navigation }) => {
+  const firebase = useFirebase();
+
+  const menuItems = [
+    {
+      id: 1,
+      name: "information",
+      type: "stack",
+      action: () => navigation.navigate("Information"),
+    },
+    {
+      id: 2,
+      name: "logout",
+      type: "modal",
+      action: () => firebase.logout(),
+    },
+  ];
+
   return (
     <Box>
       <VStack>
@@ -72,7 +78,7 @@ const Profile = ({ navigation }) => {
                     {item.name}
                   </Text>
                   <Text
-                    onPress={() => console.log("clicked")}
+                    onPress={item.action}
                     color="$coolGray600"
                     sx={{
                       _dark: {
