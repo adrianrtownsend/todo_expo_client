@@ -35,6 +35,7 @@ interface CarouselProps {
   header?: string;
   subHeader?: string;
   link?: string;
+  linkLabel?: string;
   type?: string;
   navigation?: any;
 }
@@ -44,6 +45,7 @@ const Carousel = ({
   header,
   subHeader,
   link,
+  linkLabel,
   type = "default",
   navigation,
 }: CarouselProps) => {
@@ -102,9 +104,7 @@ const Carousel = ({
       >
         {header && <Heading>{header}</Heading>}
         {link && (
-          <Link href={link}>
-            <LinkText>View All</LinkText>
-          </Link>
+          <Pressable onChange={() => navigation.navigate(link)}><Text>{linkLabel || 'View All'}</Text></Pressable>
         )}
       </HStack>
       <ScrollView

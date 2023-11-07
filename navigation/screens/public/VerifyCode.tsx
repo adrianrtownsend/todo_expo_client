@@ -27,7 +27,7 @@ import {
   HStack,
 } from "@gluestack-ui/themed";
 
-const ForgotPassword = ({ navigation }) => {
+const VerifyCode = () => {
   return (
     <Center flex={1}>
       <VStack width="$full" gap="$5" p="$3">
@@ -46,20 +46,21 @@ const ForgotPassword = ({ navigation }) => {
           </Input>
         </FormControl>
 
-        <FormControl>
-          <Button borderRadius="$full">
-            <ButtonText>Send Recovery Link</ButtonText>
-          </Button>
-        </FormControl>
         <HStack justifyContent="center">
-          <Text>Already have an account?</Text>
+          <Text>Didn't receive code?</Text>
           <Link onPress={() => navigation.navigate("Login")}>
-            <LinkText>Log In</LinkText>
+            <LinkText>Resend code</LinkText>
           </Link>
         </HStack>
+
+        <FormControl>
+          <Button borderRadius="$full">
+            <ButtonText>Verify</ButtonText>
+          </Button>
+        </FormControl>
       </VStack>
     </Center>
   );
 };
 
-export default ForgotPassword;
+export default VerifyCode;

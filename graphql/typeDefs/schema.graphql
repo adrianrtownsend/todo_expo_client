@@ -50,6 +50,16 @@ type Mutation {
     password: String!
     isPrivate: Boolean
   ): User!
+  createUserByFirebaseAuthUid(
+    username: String!
+    email: String!
+    firstName: String!
+    lastName: String!
+    passwordHash: String!
+    passwordSalt: String!
+    isPrivate: Boolean
+    authFirebaseUid: String!
+  ): User!
   updateUser(
     id: Int!
     username: String
