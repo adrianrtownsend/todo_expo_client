@@ -18,7 +18,6 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
-import Config from "react-native-config";
 
 type User = any | null;
 
@@ -33,8 +32,11 @@ interface FirebaseContextType {
   loginWithGooglePopup: () => void;
   logout: () => void;
   loginWithGoogleRedirect: () => void;
-  registerUserWithEmailAndPassword: (email: string, password: string) => void;
-  loginWithEmailAndPassword: (email: string, password: string) => void;
+  registerUserWithEmailAndPassword: (
+    email: string,
+    password: string,
+  ) => Promise<void>;
+  loginWithEmailAndPassword: (email: string, password: string) => Promise<void>;
   getIdToken: () => boolean | Promise<string | boolean>;
   ctxSignOut: () => void;
 }
@@ -72,7 +74,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       case "CONNECTED":
         return { ...state, loading: false };
       case "SET_USER":
-        return { ...state, user: action.payload, loading: false };
+        return { user: action.payload, loading: false };
       case "LOGOUT":
         return { ...state, user: null, loading: false };
       default:
@@ -101,7 +103,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: "CONNECTED" });
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        dispatch({ type: "SET_USER", payload: user });
+        user.getIdToken().then((token) => {
+          dispatch({ type: "SET_USER", payload: { ...user, token } });
+        });
       } else {
         dispatch({ type: "LOGOUT" });
       }
@@ -110,7 +114,7 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGooglePopup = () => {
+  const loginWithGooglePopup = () =>
     signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
@@ -118,8 +122,10 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         const token = credential?.accessToken;
         // The signed-in user info.
         const user = result.user;
+        // user.getIdToken().then((token) => {
+        //   dispatch({ type: "SET_USER", payload: { ...user, token } });
+        // });
         // IdP data available using getAdditionalUserInfo(result)
-        dispatch({ type: "SET_USER", payload: user });
       })
       .catch((error) => {
         // Handle Errors here.
@@ -130,45 +136,34 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         // The AuthCredential type that was used.
         const credential = GoogleAuthProvider.credentialFromError(error);
       });
-  };
 
-  const logout = () => {
-    signOut(auth);
-  };
+  const logout = () => signOut(auth);
 
-  const loginWithGoogleRedirect = () => {
-    signInWithRedirect(auth, provider);
-  };
+  const loginWithGoogleRedirect = () => signInWithRedirect(auth, provider);
 
-  const registerUserWithEmailAndPassword = (
-    email: string,
-    password: string,
-  ) => {
-    try {
-      createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error("Create user error:", error);
-    }
-  };
+  const registerUserWithEmailAndPassword = (email: string, password: string) =>
+    new Promise((resolve, reject) =>
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          resolve(userCredential.user);
+        })
+        .catch((error) => {
+          reject(error);
+        }),
+    );
 
-  const loginWithEmailAndPassword = async (email: string, password: string) => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error("Login user error:", error);
-    }
-  };
-
-  const loginInWithCustomToken = (token: string) => {
-    signInWithCustomToken(auth, token)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        return user;
-      })
-      .catch((error) => {
-        console.error("Token sign in error: ", error);
-      });
-  };
+  const loginWithEmailAndPassword = (email: string, password: string) =>
+    new Promise((resolve, reject) =>
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          resolve(userCredential.user);
+        })
+        .catch((error) => {
+          reject(error);
+        }),
+    );
 
   const getIdToken = () => {
     if (!auth.currentUser) return false;
@@ -195,7 +190,6 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       loginWithGoogleRedirect,
       registerUserWithEmailAndPassword,
       loginWithEmailAndPassword,
-      loginInWithCustomToken,
       getIdToken,
       ctxSignOut,
     }),

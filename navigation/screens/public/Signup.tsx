@@ -32,226 +32,221 @@ import {
   VStack,
   HStack,
   Pressable,
+  InputIcon,
+  InputSlot,
 } from "@gluestack-ui/themed";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER } from "../../../graphql";
 import { useFirebase } from "../../../contexts/FirebaseContext";
-import { ChromeIcon } from "lucide-react-native";
+import { isObjectEmpty } from "../../../helpers";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { EyeIcon, EyeOffIcon, ChromeIcon } from "lucide-react-native";
+import { useForm, Controller } from "react-hook-form";
+import {
+  emailRule,
+  passwordRule,
+  confirmPasswordRule,
+} from "../../../lib/validation/rules";
 
-const Signup = ({ navigation }) => {
+const Signup = () => {
   const firebase = useFirebase();
+  const { params } = useRoute();
+  const navigation = useNavigation();
   const [createUser, { data, loading, error }] = useMutation(CREATE_USER);
-  const [formData, setFormData] = useState({});
-  const [errors, setErrors] = useState({});
-  const [reqError, setreqError] = useState<string | undefined>();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleInputChange = (value, name) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const togglePasswordShow = () => {
+    setShowPassword((prev) => !prev);
   };
 
-  /**
-   * iterate through formData props
-   * set errors to items & fail
-   * return pass if all good
-   */
-  const validate = () => {
-    console.log("formData: ", formData);
+  const toggleConfirmPasswordShow = () => {
+    setShowConfirmPassword((prev) => !prev);
   };
 
-  const onSubmit = async () => {
-    /**
-     * run through validation
-     * handle submit if passed
-     * - validation fail should automatically trigger fail error throw
-     */
-    /**
-     * set response pass/fail validations
-     */
-    console.log("formData submit: ", formData);
-    if (loading) console.log("Submitting...");
-    if (error) console.log(`Submission error! ${error.message}`);
-    try {
-      const token = await createUser({
-        variables: {
-          username: formData.username,
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          password: formData.password,
-        },
-      });
-      firebase.loginWithCustomToken(token);
-    } catch (error) {
-      setreqError(`Error ${error}`);
+  const onSubmit = (data) => {
+    const { email, password } = data;
+    if (isObjectEmpty(errors)) {
+      setIsLoading(true);
+
+      // TODO: Check if email already exists
+      const emailExists = false;
+      if (emailExists) {
+        setFormError("An account with that email already exists");
+      } else {
+        navigation.navigate("CreateProfile", {
+          email,
+          password,
+        });
+      }
+      setIsLoading(false);
     }
   };
 
   return (
-    <VStack gap="$5" p="$1">
-      <VStack m="$2" p="$3">
-        <Heading textAlign="center">Create Account</Heading>
-        <Text textAlign="center">
-          Fill your information below or register with you social account.
-        </Text>
-      </VStack>
-      <Box p="$3" gap="$5">
-        <Box gap="$3">
-          <FormControl>
-            <FormControlLabel>
-              <FormControlLabelText>Username</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="johnDoe23"
-                onChangeText={(value) => handleInputChange(value, "username")}
+    <Center flex={1}>
+      <VStack width="$full" gap="$5" p="$1">
+        <VStack m="$2" p="$3">
+          <Heading textAlign="center">Create Account</Heading>
+          <Text textAlign="center">
+            Fill your information below or register with you social account.
+          </Text>
+        </VStack>
+        {formError && (
+          <Box p="$3">
+            <Box borderRadius="$md" bg="$error100" p="$5">
+              <Text color="$error500">{formError}</Text>
+            </Box>
+          </Box>
+        )}
+        <Box p="$3" gap="$5">
+          <Box gap="$3">
+            <FormControl isRequired isInvalid={!!errors.email}>
+              <FormControlLabel>
+                <FormControlLabelText>Email</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={emailRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type="text"
+                      placeholder="example@gmail.com"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  </Input>
+                )}
+                name="email"
               />
-            </Input>
-          </FormControl>
-          <FormControl>
-            <FormControlLabel>
-              <FormControlLabelText>First Name</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="John"
-                onChangeText={(value) => handleInputChange(value, "firstName")}
-              />
-            </Input>
-          </FormControl>
-          <FormControl>
-            <FormControlLabel>
-              <FormControlLabelText>Last Name</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="Doe"
-                onChangeText={(value) => handleInputChange(value, "lastName")}
-              />
-            </Input>
-          </FormControl>
-          <FormControl>
-            <FormControlLabel>
-              <FormControlLabelText>Email</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="example@gmail.com"
-                onChangeText={(value) => handleInputChange(value, "email")}
-              />
-            </Input>
-          </FormControl>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {errors.email?.message}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
 
-          <FormControl
-            size="md"
-            isDisabled={false}
-            isInvalid={false}
-            isReadOnly={false}
-            isRequired={false}
-          >
-            <FormControlLabel mb="$1">
-              <FormControlLabelText>Password</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="password"
-                defaultValue="12345"
-                placeholder="password"
-                onChangeText={(value) => handleInputChange(value, "password")}
+            <FormControl isRequired isInvalid={!!errors.password}>
+              <FormControlLabel mb="$1">
+                <FormControlLabelText>Password</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={passwordRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type={showPassword ? "text" : "password"}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                    <InputSlot pr="$3" onPress={togglePasswordShow}>
+                      {/* EyeIcon, EyeOffIcon are both imported from 'lucide-react-native' */}
+                      <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
+                    </InputSlot>
+                  </Input>
+                )}
+                name="password"
               />
-            </Input>
-            <FormControlError>
-              <FormControlErrorIcon as={AlertCircleIcon} />
-              <FormControlErrorText>
-                At least 6 characters are required.
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
-          <FormControl
-            size="md"
-            isDisabled={false}
-            isInvalid={false}
-            isReadOnly={false}
-            isRequired={false}
-          >
-            <FormControlLabel mb="$1">
-              <FormControlLabelText>Confirm Password</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="password"
-                defaultValue="12345"
-                placeholder="password"
-                onChangeText={(value) =>
-                  handleInputChange(value, "confirmPassword")
-                }
-              />
-            </Input>
-            <FormControlError>
-              <FormControlErrorIcon as={AlertCircleIcon} />
-              <FormControlErrorText>
-                At least 6 characters are required.
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {errors.password?.message}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
 
-          <Checkbox value="agree">
-            <CheckboxIndicator mr="$2">
-              <CheckboxIcon as={CheckIcon} />
-            </CheckboxIndicator>
-            <CheckboxLabel>
-              Agree to{" "}
-              <Link>
-                <LinkText>Terms &amp; Conditions</LinkText>
-              </Link>
-            </CheckboxLabel>
-          </Checkbox>
+            <FormControl isRequired isInvalid={!!errors.confirmPassword}>
+              <FormControlLabel mb="$1">
+                <FormControlLabelText>Confirm Password</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={passwordRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type={showConfirmPassword ? "text" : "password"}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                    <InputSlot pr="$3" onPress={toggleConfirmPasswordShow}>
+                      {/* EyeIcon, EyeOffIcon are both imported from 'lucide-react-native' */}
+                      <InputIcon
+                        as={showConfirmPassword ? EyeIcon : EyeOffIcon}
+                      />
+                    </InputSlot>
+                  </Input>
+                )}
+                name="confirmPassword"
+              />
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {"Passwords must match"}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <FormControl>
+              <Button borderRadius="$full" onPress={handleSubmit(onSubmit)}>
+                <ButtonText fontSize="$sm" fontWeight="$medium">
+                  Sign Up
+                </ButtonText>
+              </Button>
+            </FormControl>
+          </Box>
         </Box>
-
-        <Box>
-          <FormControl>
-            <Button bg="$darkBlue600" borderRadius="$full" onPress={onSubmit}>
-              <ButtonText fontSize="$sm" fontWeight="$medium">
-                Sign Up
-              </ButtonText>
-            </Button>
-          </FormControl>
-        </Box>
-      </Box>
-      <VStack p="$3" gap="$3">
-        <HStack justifyContent="center" space="md">
-          <Center width={"$1/5"}>
-            <Divider />
-          </Center>
-          <Text textAlign="center">Or sign up with</Text>
-          <Center width={"$1/5"}>
-            <Divider />
-          </Center>
-        </HStack>
-        <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
-          <Pressable
-            onPress={() => console.log("clicked google link")}
-            p="$3"
-            borderWidth={"$1"}
-            borderRadius={"$full"}
-          >
-            <Icon as={ChromeIcon} color="black" />
-          </Pressable>
+        <VStack p="$3" gap="$3">
+          <HStack justifyContent="center" space="md">
+            <Center width={"$1/5"}>
+              <Divider />
+            </Center>
+            <Text textAlign="center">Or sign up with</Text>
+            <Center width={"$1/5"}>
+              <Divider />
+            </Center>
+          </HStack>
+          <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
+            <Pressable
+              onPress={() => console.log("clicked google link")}
+              p="$3"
+              borderWidth={"$1"}
+              borderRadius={"$full"}
+            >
+              <Icon as={ChromeIcon} color="black" />
+            </Pressable>
+          </HStack>
+        </VStack>
+        <HStack justifyContent="center">
+          <Text>Already have an account?</Text>
+          <Link onPress={() => navigation.navigate("Login")}>
+            <LinkText>Log In</LinkText>
+          </Link>
         </HStack>
       </VStack>
-      <HStack justifyContent="center">
-        <Text>Already have an account?</Text>
-        <Link onPress={() => navigation.navigate("Login")}>
-          <LinkText>Log In</LinkText>
-        </Link>
-      </HStack>
-    </VStack>
+    </Center>
   );
 };
 

@@ -21,6 +21,7 @@ import { ChevronRight, Heart, Star, User } from "lucide-react-native";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { ImageBackground, ScrollView } from "react-native";
 import { GET_TODO } from "../../../graphql";
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const tabsData = [
   {
@@ -39,9 +40,11 @@ const statsData = [
   { label: "Created date", data: "Feb 2, 2023" },
 ];
 
-const Todo = ({ route, navigation }) => {
+const Todo = () => {
   const [activeTab, setActiveTab] = React.useState(tabsData[0]);
-  // const { todoId } = route.params;
+  const navigation = useNavigation()
+  const route = useRoute()
+  const { todoId } = route.params;
   // const { loading, error, data } = useQuery(GET_TODO, {
   //   id: todoId,
   // });

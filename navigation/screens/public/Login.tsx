@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   MoonIcon,
   AlertCircleIcon,
@@ -20,6 +19,8 @@ import {
   Icon,
   Input,
   InputField,
+  InputSlot,
+  InputIcon,
   Link,
   LinkText,
   Text,
@@ -30,144 +31,172 @@ import {
 } from "@gluestack-ui/themed";
 import { useState } from "react";
 import { useFirebase } from "../../../contexts/FirebaseContext";
-import { ChromeIcon } from "lucide-react-native";
-import { ImageBackground } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { EyeIcon, EyeOffIcon, ChromeIcon } from "lucide-react-native";
+import { useForm, Controller } from "react-hook-form";
+import { emailRule, passwordRule } from "../../../lib/validation/rules";
+import { isObjectEmpty } from "../../../helpers";
 
-const Login = ({ navigation }) => {
+const Login = () => {
   const firebase = useFirebase();
-  const [formData, setFormData] = useState<{
-    email?: string;
-    password?: string;
-  }>({});
-  const [errors, setErrors] = useState({});
+  const navigation = useNavigation();
+  const [formError, setFormError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleInputChange = (value, name) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const togglePasswordShow = () => {
+    setShowPassword((prev) => !prev);
   };
 
-  /**
-   * iterate through formData props
-   * set errors to items & fail
-   * return pass if all good
-   */
-  const validate = () => {
-    console.log("formData: ", formData);
-    return new Promise((resolve, reject) => {
-      resolve(true);
-    });
-  };
-
-  const onSubmit = async () => {
-    /**
-     * run through validation
-     * handle submit if passed
-     * - validation fail should automatically trigger fail error throw
-     */
-    /**
-     * set response pass/fail validations
-     */
-    await validate();
-    firebase.loginWithEmailAndPassword({
-      email: formData.email,
-      password: formData.password,
-    });
+  const onSubmit = (data) => {
+    const { email, password } = data;
+    if (isObjectEmpty(errors)) {
+      setIsLoading(true);
+      firebase
+        .loginWithEmailAndPassword(email, password)
+        .catch((error) => {
+          console.error("login error: ", error);
+          setFormError("Invalid username and password combination");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   return (
-    <VStack gap="$5">
-      <VStack>
-        <Heading textAlign="center">Log In</Heading>
-        <Text textAlign="center">Hi! Welcome back, you've been missed</Text>
-        <Text textAlign="center">{firebase ? "works" : "not"}</Text>
-      </VStack>
-      <Box p="$3" gap="$5">
-        <Box gap="$3">
-          <FormControl size="lg" isRequired isInvalid={"email" in errors}>
-            <FormControlLabel>
-              <FormControlLabelText>Email</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="example@gmail.com"
-                onChangeText={(value) => handleInputChange(value, "email")}
+    <Center flex={1}>
+      <VStack width="$full" gap="$5">
+        <VStack>
+          <Heading textAlign="center">Log In</Heading>
+          <Text textAlign="center">Hi! Welcome back, you've been missed</Text>
+          <Text textAlign="center">{firebase ? "works" : "not"}</Text>
+        </VStack>
+        {formError && (
+          <Box p="$3">
+            <Box borderRadius="$md" bg="$error100" p="$5">
+              <Text color="$error500">{formError}</Text>
+            </Box>
+          </Box>
+        )}
+        <Box p="$3" gap="$5">
+          <Box gap="$3">
+            <FormControl isRequired isInvalid={!!errors.email}>
+              <FormControlLabel>
+                <FormControlLabelText>Email</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={emailRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type="text"
+                      placeholder="example@gmail.com"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  </Input>
+                )}
+                name="email"
               />
-            </Input>
-            {/* <FormControlError>
-						<FormControlErrorIcon as={AlertCircleIcon} />
-						<FormControlErrorText>An email error</FormControlErrorText>
-					</FormControlError> */}
-          </FormControl>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {errors.email?.message}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
 
-          <FormControl
-            size="lg"
-            isInvalid={"password" in errors}
-            isRequired={true}
-          >
-            <FormControlLabel mb="$1">
-              <FormControlLabelText>Password</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="password"
-                placeholder="password"
-                onChangeText={(value) => handleInputChange(value, "password")}
+            <FormControl isRequired isInvalid={!!errors.password}>
+              <FormControlLabel mb="$1">
+                <FormControlLabelText>Password</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={passwordRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type={showPassword ? "text" : "password"}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                    <InputSlot pr="$3" onPress={togglePasswordShow}>
+                      {/* EyeIcon, EyeOffIcon are both imported from 'lucide-react-native' */}
+                      <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
+                    </InputSlot>
+                  </Input>
+                )}
+                name="password"
               />
-            </Input>
-            <FormControlHelper justifyContent="flex-end">
-              <FormControlHelperText>
-                <Link onPress={() => navigation.navigate("ForgotPassword")}>
-                  <LinkText>Forgot Password?</LinkText>
-                </Link>
-              </FormControlHelperText>
-            </FormControlHelper>
-            {/* <FormControlError>
-						<FormControlErrorIcon as={AlertCircleIcon} />
-						<FormControlErrorText>{getErrors('password')}</FormControlErrorText>
-					</FormControlError> */}
-          </FormControl>
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {errors.password?.message}
+                </FormControlErrorText>
+              </FormControlError>
+              <FormControlHelper justifyContent="flex-end">
+                <FormControlHelperText>
+                  <Link onPress={() => navigation.navigate("ForgotPassword")}>
+                    <LinkText>Forgot Password?</LinkText>
+                  </Link>
+                </FormControlHelperText>
+              </FormControlHelper>
+            </FormControl>
+          </Box>
+          <Box>
+            <FormControl>
+              <Button borderRadius="$full" onPress={handleSubmit(onSubmit)}>
+                <ButtonText fontSize="$sm" fontWeight="$medium">
+                  {isLoading ? "Signing In..." : "Sign In"}
+                </ButtonText>
+              </Button>
+            </FormControl>
+          </Box>
         </Box>
-        <Box>
-          <FormControl>
-            <Button bg="$darkBlue600" borderRadius="$full" onPress={onSubmit}>
-              <ButtonText fontSize="$sm" fontWeight="$medium">
-                Sign In
-              </ButtonText>
-            </Button>
-          </FormControl>
-        </Box>
-      </Box>
-      <VStack p="$3" gap="$3">
-        <HStack justifyContent="center" space="md">
-          <Center width={"$1/5"}>
-            <Divider />
-          </Center>
-          <Text textAlign="center">Or sign in with</Text>
-          <Center width={"$1/5"}>
-            <Divider />
-          </Center>
-        </HStack>
-        <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
-          <Pressable
-            onPress={() => console.log("clicked google link")}
-            p="$3"
-            borderWidth={"$1"}
-            borderRadius={"$full"}
-          >
-            <Icon as={ChromeIcon} color="black" />
-          </Pressable>
+        <VStack p="$3" gap="$3">
+          <HStack justifyContent="center" space="md">
+            <Center width={"$1/5"}>
+              <Divider />
+            </Center>
+            <Text textAlign="center">Or sign in with</Text>
+            <Center width={"$1/5"}>
+              <Divider />
+            </Center>
+          </HStack>
+          <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
+            <Pressable
+              onPress={() => console.log("clicked google link")}
+              p="$3"
+              borderWidth={"$1"}
+              borderRadius={"$full"}
+            >
+              <Icon as={ChromeIcon} color="black" />
+            </Pressable>
+          </HStack>
+        </VStack>
+        <HStack justifyContent="center">
+          <Text>Don't have an account?</Text>
+          <Link onPress={() => navigation.navigate("Signup")}>
+            <LinkText>Sign Up</LinkText>
+          </Link>
         </HStack>
       </VStack>
-      <HStack justifyContent="center">
-        <Text>Don't have an account?</Text>
-        <Link onPress={() => navigation.navigate("Signup")}>
-          <LinkText>Sign Up</LinkText>
-        </Link>
-      </HStack>
-    </VStack>
+    </Center>
   );
 };
 
