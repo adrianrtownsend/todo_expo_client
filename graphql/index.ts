@@ -1,4 +1,5 @@
-import { gql } from './__generated__/gql';
+import { DocumentNode } from "graphql";
+import { gql } from "./__generated__/gql";
 
 export const GET_TODOS = gql(`
   query getTodos {
@@ -6,6 +7,12 @@ export const GET_TODOS = gql(`
       id
       title
       description
+      isCompleted
+      userId
+      tags {
+        id
+        name
+      }
     }
   }
 `);
@@ -17,7 +24,23 @@ export const GET_TODO = gql(`
       title
       description
       isCompleted
-      user
+      userId
+      tags {
+        id
+        name
+      }
+    }
+  }
+`);
+
+export const GET_TODOS_BY_USER_ID = gql(`
+  query getTodosByUserId($userId: String!) {
+    todosByUserId (userId: $userId) {
+      id
+      title
+      description
+      isCompleted
+      userId
       tags {
         id
         name
@@ -29,16 +52,19 @@ export const GET_TODO = gql(`
 export const CREATE_TODO = gql(`
   mutation CreateTodo(
     $title: String!
-    $userId: Int!
+    $description: String!
+    $isCompleted: Boolean
   ) {
     createTodo(
       title:$title,
-      userId:$userId
+      description:$description,
+      isCompleted: $isCompleted
     ) {
       id
       title
       description
       isCompleted
+      userId
       tags {
         id
         name
@@ -51,7 +77,7 @@ export const UPDATE_TODO = gql(`
   mutation UpdateTodo(
     $id: Int!
     $title: String
-    $descripion: String
+    $description: String
     $isCompleted: Boolean
   ) {
     updateTodo(
@@ -64,93 +90,17 @@ export const UPDATE_TODO = gql(`
       title,
       description,
       isCompleted
-      tags
+      tags {
+        id
+        name
+      }
     }
   }
 `);
 
 export const DELETE_TODO = gql(`
   mutation deleteTodo($id: Int!) {
-    deleteUser(id: $id) {
-      id
-    }
-  }
-`);
-
-export const GET_USER = gql(`
-  query GetUser($id: Int!) {
-    user(id: $id) {
-      id
-      username
-      email
-      firstName
-      lastName
-      isPrivate
-    }
-  }
-`);
-
-export const CREATE_USER = gql(`
-  mutation CreateUser(
-		$username: String!
-		$email: String!
-		$firstName: String!
-		$lastName: String!
-		$password: String!
-	) {
-    createUser(
-      username:$username,
-      email:$email,
-      firstName:$firstName,
-      lastName:$lastName,
-      password:$password,
-    ) {
-      id
-      username
-      email
-      firstName
-      lastName
-      password
-      isPrivate
-    }
-  }
-`);
-
-export const UPDATE_USER = gql(`
-  mutation UpdateUser(
-    $id: Int!
-    $username: String
-    $email: String
-    $firstName: String
-    $lastName: String
-    $isPrivate: Boolean
-  ) {
-    updateUser(
-      id:$id,
-      username:$username,
-      email:$email,
-      firstName:$firstName,
-      lastName:$lastName,
-      isPrivate:$isPrivate
-    ) {
-      id
-      username
-      email
-      firstName
-      lastName
-      password
-      isPrivate
-    }
-  }
-`);
-
-export const DELETE_USER = gql(`
-  mutation DeleteUser(
-    $id: Int!
-  ) {
-    deleteUser(
-      id:$id
-    ) {
+    deleteTodo(id: $id) {
       id
     }
   }
@@ -179,7 +129,7 @@ export const GET_TAG = gql(`
 export const CREATE_TAG = gql(`
   mutation CreateTag(
     $name: String!
-    $isVisible: String
+    $isVisible: Boolean
   ) {
     createTag(
       name:$name,
@@ -194,10 +144,12 @@ export const CREATE_TAG = gql(`
 
 export const UPDATE_TAG = gql(`
   mutation UpdateTag(
+    $id: Int!
     $name: String
-    $isVisible: String
+    $isVisible: Boolean
   ) {
     updateTag(
+      id:$id,
       name:$name,
       isVisible:$isVisible
     ) {
