@@ -51,7 +51,7 @@ const Todo = () => {
     error,
     data: queryData,
   } = useQuery(GET_TODO, {
-    id: todoId,
+    variables: { id: todoId },
   });
 
   if (loading) {
