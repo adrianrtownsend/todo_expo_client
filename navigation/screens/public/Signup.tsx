@@ -45,7 +45,7 @@ import { useForm, Controller } from "react-hook-form";
 import {
   emailRule,
   passwordRule,
-  confirmPasswordRule,
+  usernameRule,
 } from "../../../lib/validation/rules";
 
 const Signup = () => {
@@ -65,6 +65,7 @@ const Signup = () => {
   } = useForm({
     defaultValues: {
       email: "",
+      username: "",
       password: "",
       confirmPassword: "",
     },
@@ -82,17 +83,12 @@ const Signup = () => {
     const { email, password } = data;
     if (isObjectEmpty(errors)) {
       setIsLoading(true);
-
-      // TODO: Check if email already exists
-      const emailExists = false;
-      if (emailExists) {
-        setFormError("An account with that email already exists");
-      } else {
-        navigation.navigate("CreateProfile", {
-          email,
-          password,
+      firebase
+        .registerUserWithEmailAndPassword(email, password)
+        .catch((error) => {
+          console.error("login error: ", error);
+          setFormError("Invalid username and password combination");
         });
-      }
       setIsLoading(false);
     }
   };
@@ -139,6 +135,34 @@ const Signup = () => {
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
                   {errors.email?.message}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+
+            <FormControl isRequired isInvalid={!!errors.username}>
+              <FormControlLabel>
+                <FormControlLabelText>Username</FormControlLabelText>
+              </FormControlLabel>
+              <Controller
+                control={control}
+                rules={usernameRule}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input>
+                    <InputField
+                      type="text"
+                      placeholder="exampleUser123"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  </Input>
+                )}
+                name="username"
+              />
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {errors.username?.message}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -230,7 +254,7 @@ const Signup = () => {
           </HStack>
           <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
             <Pressable
-              onPress={() => console.log("clicked google link")}
+              onPress={() => firebase.loginWithGooglePopup()}
               p="$3"
               borderWidth={"$1"}
               borderRadius={"$full"}

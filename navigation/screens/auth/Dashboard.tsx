@@ -7,15 +7,20 @@ import {
   useFirebase,
 } from "../../../contexts/FirebaseContext";
 import {
-  Center,
-  Text,
   Box,
+  Center,
   Button,
   ButtonText,
+  Fab,
+  FabIcon,
+  FabLabel,
   ScrollView,
   VStack,
+  Text,
+  AddIcon,
 } from "@gluestack-ui/themed";
 import Carousel from "../../../components/Carousel";
+import { useNavigation } from "@react-navigation/native";
 
 const users = [
   {
@@ -100,7 +105,8 @@ const todos = [
   },
   // Add more todos as needed
 ];
-const TodosCarousel = (pros) => {
+
+const TodosCarousel = () => {
   return (
     <Carousel
       type="item"
@@ -108,37 +114,55 @@ const TodosCarousel = (pros) => {
       data={todos}
       subHeader={users[0].username}
       link={"userTodos"}
-          linkLabel={"View Todos"}
-          itemScreen={"Task"}
+      linkLabel={"View Todos"}
+      itemScreen={"Task"}
     />
   );
 };
 
 const UsersCarousel = () => {
-  return <Carousel type="avatar" data={users} header="Users" itemScreen={"Profile"}/>;
-};
-
-const StatsCarousel = (props) => {
   return (
-    <Carousel type="stat" data={todos} header="Stats (Todos)"  link={"stats"}/>
+    <Carousel
+      type="avatar"
+      data={users}
+      header="Users"
+      itemScreen={"Profile"}
+    />
   );
 };
 
-const Dashboard = ({ navigation }) => {
-  // const { loading, error, data } = useQuery(GET_TODOS, {});
-
+const StatsCarousel = () => {
   return (
-    <Center flex={1}>
-    <VStack width="$full">
-      <ScrollView>
-        <TodosCarousel
-          
-        />
-        <UsersCarousel  />
-        <StatsCarousel  />
-      </ScrollView>
-      </VStack>
-    </Center>
+    <Carousel type="stat" data={todos} header="Stats (Todos)" link={"stats"} />
+  );
+};
+
+const CreateTodoFab = () => {
+  const navigation = useNavigation();
+  return (
+    <Fab
+      size="md"
+      placement="bottom right"
+      onPress={() => navigation.navigate("TodoForm")}
+    >
+      <FabIcon as={AddIcon} mr="$1" />
+      <FabLabel>Add Todo</FabLabel>
+    </Fab>
+  );
+};
+
+const Dashboard = () => {
+  return (
+    <VStack flex={1} width="$full">
+      <Box py="$3">
+        <ScrollView>
+          <TodosCarousel />
+          <UsersCarousel />
+          <StatsCarousel />
+        </ScrollView>
+      </Box>
+      <CreateTodoFab />
+    </VStack>
   );
 };
 

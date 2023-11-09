@@ -18,17 +18,14 @@ const SplashScreen = () => {
 
 const Navigation = (props: {}) => {
   const firebase = useFirebase();
-  const token = firebase.user?.token || "";
   const client = new ApolloClient({
     uri: process.env.EXPO_PUBLIC_APOLLO_CLIENT_SERVER_URL,
     cache: new InMemoryCache(),
     defaultOptions: { watchQuery: { fetchPolicy: "cache-and-network" } },
     headers: {
-      authorization: token,
+      authorization: firebase.user?.accessToken || "",
     },
   });
-
-  const userContext = null;
 
   return (
     <ApolloProvider client={client}>
@@ -41,7 +38,7 @@ const Navigation = (props: {}) => {
                 component={SplashScreen}
                 options={{ headerShown: false }}
               />
-            ) : firebase.user && userContext ? (
+            ) : firebase.user ? (
               <Stack.Screen
                 name="Auth"
                 component={AuthNavigator}

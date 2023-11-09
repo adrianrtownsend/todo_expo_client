@@ -4,11 +4,14 @@ import {
   getAuth,
   onAuthStateChanged,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   signInWithCustomToken,
   signOut,
+  updateProfile,
+  deleteUser,
 } from "firebase/auth";
 import React, {
   createContext,
@@ -37,8 +40,14 @@ interface FirebaseContextType {
     password: string,
   ) => Promise<void>;
   loginWithEmailAndPassword: (email: string, password: string) => Promise<void>;
+  deleteUserProfile: () => Promise<void>;
   getIdToken: () => boolean | Promise<string | boolean>;
   ctxSignOut: () => void;
+  sendPasswordResetEmailLink: (email: string) => Promise<void>;
+  updateUser: (
+    displayName?: string | null,
+    photoURL?: string | null,
+  ) => Promise<void>;
 }
 
 const firebaseInitialContext = {
@@ -100,15 +109,13 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen for Firebase authentication state changes
   useEffect(() => {
-    dispatch({ type: "CONNECTED" });
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        user.getIdToken().then((token) => {
-          dispatch({ type: "SET_USER", payload: { ...user, token } });
-        });
+        dispatch({ type: "SET_USER", payload: user });
       } else {
         dispatch({ type: "LOGOUT" });
       }
+      dispatch({ type: "CONNECTED" });
     });
 
     return () => unsubscribe();
@@ -141,11 +148,21 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
 
   const loginWithGoogleRedirect = () => signInWithRedirect(auth, provider);
 
-  const registerUserWithEmailAndPassword = (email: string, password: string) =>
+  const registerUserWithEmailAndPassword = (
+    email: string,
+    password: string,
+    displayName?: string,
+    photoURL?: string,
+  ) =>
     new Promise((resolve, reject) =>
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in
+          if (displayName || photoURL) {
+            updateUser(displayName, photoURL).then(() => {
+              resolve(userCredential.user);
+            });
+          }
           resolve(userCredential.user);
         })
         .catch((error) => {
@@ -165,6 +182,8 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
         }),
     );
 
+  const deleteUserProfile = () => deleteUser(auth.currentUser);
+
   const getIdToken = () => {
     if (!auth.currentUser) return false;
     return auth.currentUser
@@ -181,6 +200,20 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: "LOGOUT" });
   };
 
+  const sendPasswordResetEmailLink = (email: string) =>
+    sendPasswordResetEmail(auth, email);
+
+  const updateUser = (displayName?: string | null, photoURL?: string | null) =>
+    new Promise((resolve, reject) => {
+      if (!auth.currentUser) {
+        reject(new Error("Unable to retrieve user credentials"));
+      } else {
+        updateProfile(auth.currentUser, { displayName, photoURL })
+          .then(() => resolve(auth.currentUser))
+          .catch((error) => reject(error));
+      }
+    });
+
   const contextValue = useMemo(
     () => ({
       loading: state.loading,
@@ -192,6 +225,9 @@ export const FirebaseProvider = ({ children }: { children: ReactNode }) => {
       loginWithEmailAndPassword,
       getIdToken,
       ctxSignOut,
+      sendPasswordResetEmailLink,
+      updateUser,
+      deleteUserProfile,
     }),
     [state.user, state.loading],
   );

@@ -38,6 +38,7 @@ interface CarouselProps {
   linkLabel?: string;
   type?: string;
   navigation?: any;
+  itemScreen?: string;
 }
 
 const Carousel = ({
@@ -48,6 +49,7 @@ const Carousel = ({
   linkLabel,
   type = "default",
   navigation,
+  itemScreen,
 }: CarouselProps) => {
   const scrollViewRef = useRef(null);
   const scrollAmount = 400;
@@ -104,7 +106,9 @@ const Carousel = ({
       >
         {header && <Heading>{header}</Heading>}
         {link && (
-          <Pressable onChange={() => navigation.navigate(link)}><Text>{linkLabel || 'View All'}</Text></Pressable>
+          <Pressable onChange={() => navigation.navigate(link)}>
+            <Text>{linkLabel || "View All"}</Text>
+          </Pressable>
         )}
       </HStack>
       <ScrollView

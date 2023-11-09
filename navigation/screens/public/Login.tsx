@@ -180,7 +180,7 @@ const Login = () => {
           </HStack>
           <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
             <Pressable
-              onPress={() => console.log("clicked google link")}
+              onPress={() => firebase.loginWithGooglePopup()}
               p="$3"
               borderWidth={"$1"}
               borderRadius={"$full"}
