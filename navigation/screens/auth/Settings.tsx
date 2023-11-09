@@ -40,7 +40,7 @@ const Settings = () => {
     {
       id: 3,
       name: "Delete Account",
-      action: () => firebase.logout(),
+      action: () => firebase.deleteUserProfile(),
       icon: "trash",
     },
   ];

@@ -22,6 +22,7 @@ import Complete from "./Complete";
 import { useNavigation } from "@react-navigation/native";
 
 interface ItemThumbnailProps {
+  id: number;
   src: string;
   title: string;
   isCompleted: boolean;
@@ -30,6 +31,7 @@ interface ItemThumbnailProps {
 }
 
 const ItemThumbnail = ({
+  id,
   src,
   title,
   isCompleted,
@@ -53,7 +55,7 @@ const ItemThumbnail = ({
         w="100%"
         onPress={() =>
           navigation.navigate("Todo", {
-            todoId: 1,
+            todoId: id,
           })
         }
       >

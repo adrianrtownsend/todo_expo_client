@@ -20,8 +20,9 @@ import {
 import { ChevronRight, Heart, Star, User } from "lucide-react-native";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { ImageBackground, ScrollView } from "react-native";
+import { useQuery } from "@apollo/client";
 import { GET_TODO } from "../../../graphql";
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from "@react-navigation/native";
 
 const tabsData = [
   {
@@ -42,19 +43,21 @@ const statsData = [
 
 const Todo = () => {
   const [activeTab, setActiveTab] = React.useState(tabsData[0]);
-  const navigation = useNavigation()
-  const route = useRoute()
+  const navigation = useNavigation();
+  const route = useRoute();
   const { todoId } = route.params;
-  // const { loading, error, data } = useQuery(GET_TODO, {
-  //   id: todoId,
-  // });
+  const {
+    loading,
+    error,
+    data: queryData,
+  } = useQuery(GET_TODO, {
+    variables: { id: todoId },
+  });
 
-  // if (loading) {
-  //   return <Text>loading...</Text>;
-  // }
-  // if (error) return <Text>Error: {error.message}</Text>;
-
-  // const { id, title, description, isCompleted } = data;
+  if (loading) {
+    return <Text>loading...</Text>;
+  }
+  if (error) return <Text>Error: {error.message}</Text>;
 
   const data = {
     id: 99,
@@ -62,6 +65,10 @@ const Todo = () => {
     description: "A description",
     isCompleted: false,
   };
+
+  const { id, title, description, isCompleted } = data;
+
+  console.log("queryData: ", queryData);
 
   const TodoBackground = () => {
     return (
@@ -109,9 +116,9 @@ const Todo = () => {
         <Box>
           <Heading>Info</Heading>
           <Box flexWrap="wrap" flexDirection="row" gap={"$5"}>
-            {statsData.map((s) => {
+            {statsData.map((s, i) => {
               return (
-                <VStack>
+                <VStack key={i}>
                   <Text>{s.label}</Text>
                   <Text>{s.data}</Text>
                 </VStack>
