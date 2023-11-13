@@ -4,17 +4,25 @@ import { CheckCircle2 } from "lucide-react-native";
 import { useState } from "react";
 
 interface CompleteProps {
-  isChecked?: boolean;
+  isChecked: boolean;
+  onChecked?: () => void;
+  isChangingCheck?: boolean;
 }
 
-const Complete = ({ isChecked = false }: CompleteProps) => {
+const Complete = ({
+  isChecked = false,
+  onChecked,
+  isChangingCheck,
+}: CompleteProps) => {
   const [checked, setChecked] = useState(false);
 
   return (
     <>
       <Pressable
         onPress={() => {
+          if (isChangingCheck) return;
           setChecked(!checked);
+          onChecked;
         }}
         position="absolute"
         top={12}
@@ -27,7 +35,7 @@ const Complete = ({ isChecked = false }: CompleteProps) => {
       >
         <AnimatePresence>
           <Motion.View
-            key={checked ? "checked" : "unchecked"}
+            key={isChecked ? "checked" : "unchecked"}
             initial={{
               scale: 1.3,
             }}
@@ -50,8 +58,8 @@ const Complete = ({ isChecked = false }: CompleteProps) => {
             <Icon
               as={CheckCircle2}
               size="xl"
-              color={checked ? "white" : "white"}
-              fill={checked ? "green" : "gray"}
+              color={isChecked ? "white" : "white"}
+              fill={isChecked ? "$green300" : "$gray300"}
             />
           </Motion.View>
         </AnimatePresence>

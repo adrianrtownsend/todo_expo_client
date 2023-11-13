@@ -42,7 +42,7 @@ interface CarouselProps {
 }
 
 const Carousel = ({
-  data = null,
+  data = [],
   header,
   subHeader,
   link,
@@ -127,21 +127,20 @@ const Carousel = ({
         }}
       >
         <HStack space="md" width="100%" px="$4" sx={{ "@md": { px: "$0" } }}>
-          {data &&
-            data.map((item, index: number) => {
-              return (
-                <Box key={index} flex={1}>
-                  <Pressable
-                    onPress={() => {
-                      navigation.navigate("");
-                    }}
-                  >
-                    {carouselItem(item, type, index)}
-                    {}
-                  </Pressable>
-                </Box>
-              );
-            })}
+          {data?.map((item, index: number) => {
+            return (
+              <Box key={index} flex={1}>
+                <Pressable
+                  onPress={() => {
+                    navigation.navigate("");
+                  }}
+                >
+                  {carouselItem(item, type, index)}
+                  {}
+                </Pressable>
+              </Box>
+            );
+          })}
         </HStack>
       </ScrollView>
       <ScrollLeft
