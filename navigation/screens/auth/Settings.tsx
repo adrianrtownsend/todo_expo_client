@@ -48,7 +48,11 @@ const Settings = () => {
   return (
     <Center flex={1}>
       <VStack width="$full">
-        <Avatar name={"Jon smith"} />
+        <Avatar
+          displayName={firebase.user.displayName}
+          email={firebase.user.email}
+          uid={firebase.user.uid}
+        />
         <MenuList items={menuItems} />
       </VStack>
     </Center>

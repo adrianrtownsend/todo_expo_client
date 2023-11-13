@@ -26,7 +26,7 @@ const TodoNavigator = () => {
       <TodoStack.Screen
         name="Todo"
         component={Todo}
-        options={{ presentation: "modal" }}
+        // options={{ presentation: "modal" }}
       />
       <TodoStack.Screen
         name="TodoForm"

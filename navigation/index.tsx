@@ -5,16 +5,9 @@ import PublicNavigator from "./screens/public";
 import { useFirebase } from "../contexts/FirebaseContext";
 import { Center, Box, Spinner } from "@gluestack-ui/themed";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import Loading from "../components/LoadingWrapper";
 
 const Stack = createNativeStackNavigator();
-
-const SplashScreen = () => {
-  return (
-    <Center flex={1}>
-      <Spinner size="large" />
-    </Center>
-  );
-};
 
 const Navigation = (props: {}) => {
   const firebase = useFirebase();
@@ -35,7 +28,7 @@ const Navigation = (props: {}) => {
             {firebase.loading ? (
               <Stack.Screen
                 name="Splash"
-                component={SplashScreen}
+                component={Loading}
                 options={{ headerShown: false }}
               />
             ) : firebase.user ? (

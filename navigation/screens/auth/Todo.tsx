@@ -20,9 +20,14 @@ import {
 import { ChevronRight, Heart, Star, User } from "lucide-react-native";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { ImageBackground, ScrollView } from "react-native";
-import { useQuery } from "@apollo/client";
-import { GET_TODO } from "../../../graphql";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  GET_TODO,
+  UPDATE_TODO_ISCOMPLETED,
+  DELETE_TODO,
+} from "../../../graphql";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import UserCard from "../../../components/UserCard";
 
 const tabsData = [
   {
@@ -45,30 +50,50 @@ const Todo = () => {
   const [activeTab, setActiveTab] = React.useState(tabsData[0]);
   const navigation = useNavigation();
   const route = useRoute();
-  const { todoId } = route.params;
-  const {
-    loading,
-    error,
-    data: queryData,
-  } = useQuery(GET_TODO, {
+  const todoId = route.params?.params?.todoId || route.params?.todoId;
+  const { loading, error, data } = useQuery(GET_TODO, {
     variables: { id: todoId },
   });
+  const [
+    updateTodoIsCompleted,
+    { data: updateData, loading: updateLoading, error: updateError },
+  ] = useMutation(UPDATE_TODO_ISCOMPLETED);
+  const [
+    deleteTodo,
+    { data: deleteData, loading: deleteLoading, error: deleteError },
+  ] = useMutation(DELETE_TODO);
 
   if (loading) {
     return <Text>loading...</Text>;
   }
   if (error) return <Text>Error: {error.message}</Text>;
 
-  const data = {
-    id: 99,
-    title: "Johns todo",
-    description: "A description",
-    isCompleted: false,
+  // const data = {
+  //   id: 99,
+  //   title: "Johns todo",
+  //   description: "A description",
+  //   isCompleted: false,
+  // };
+
+  // const { id, title, description, isCompleted } = data;
+  const { todo } = data;
+
+  const handleUpdateIsCompleted = (complete: boolean) => {
+    updateTodoIsCompleted({
+      variables: {
+        id: todo.id,
+        isCompleted: complete,
+      },
+    });
   };
 
-  const { id, title, description, isCompleted } = data;
-
-  console.log("queryData: ", queryData);
+  const handleDeleteTodo = async () => {
+    await deleteTodo({
+      variables: {
+        id: todo.id,
+      },
+    });
+  };
 
   const TodoBackground = () => {
     return (
@@ -87,32 +112,18 @@ const Todo = () => {
 
   const TodoTabContainer = (tab: any) => {
     return (
-      <VStack>
-        <Heading>Description</Heading>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
-        </Text>
-        <Heading>User</Heading>
-        <HStack justifyContent="space-between">
-          <HStack>
-            <Avatar
-              src={
-                "https://media.vanityfair.com/photos/5ba12e6d42b9d16f4545aa19/3:2/w_1998,h_1332,c_limit/t-Avatar-The-Last-Airbender-Live-Action.jpg"
-              }
-              name={"Jones"}
-            />
-            <VStack>
-              <Text>{"John Jones"}</Text>
-              <Text>{"johnJones"}</Text>
-            </VStack>
-          </HStack>
-          <HStack>
-            <User />
-          </HStack>
-        </HStack>
+      <VStack gap="$1" px="$3">
+        <Box>
+          <Heading>Description</Heading>
+          <Text>{todo?.description}</Text>
+        </Box>
+        <Box>
+          <Heading>User</Heading>
+          <UserCard
+            displayName={todo.user.displayName}
+            email={todo.user.email}
+          />
+        </Box>
         <Box>
           <Heading>Info</Heading>
           <Box flexWrap="wrap" flexDirection="row" gap={"$5"}>
@@ -127,6 +138,19 @@ const Todo = () => {
           </Box>
         </Box>
       </VStack>
+    );
+  };
+
+  const TodoDelete = () => {
+    return (
+      <HStack justifyContent="space-between">
+        <Box>
+          <Text>Delete Todo</Text>
+        </Box>
+        <Button onPress={handleDeleteTodo}>
+          {deleteLoading ? "Deleting..." : "Delete"}
+        </Button>
+      </HStack>
     );
   };
 
@@ -148,7 +172,7 @@ const Todo = () => {
             <Text>id</Text>
             <Text>title</Text>
           </HStack>
-          <Heading textAlign="center">Task Title</Heading>
+          <Heading textAlign="center">{todo?.title}</Heading>
           <HStack justifyContent="space-between">
             <Text>id</Text>
             <Text>title</Text>
@@ -218,11 +242,17 @@ const Todo = () => {
       <HStack justifyContent="space-between">
         <VStack>
           <Text>{"Status"}</Text>
-          <Text>{"Incomplete"}</Text>
+          <Text>{todo.isCompleted ? "Complete" : "Incomplete"}</Text>
         </VStack>
-        <Button bg="$darkBlue600" onPress={() => console.log("clicked")}>
+        <Button
+          bg="$darkBlue600"
+          onPress={() => handleUpdateIsCompleted(!todo.isCompleted)}
+          disabled={updateLoading}
+        >
           <ButtonText fontSize="$sm" fontWeight="$medium">
-            {"Mark Complete"}
+            {updateLoading
+              ? "Updating..."
+              : `Mark ${todo.isCompleted ? "Incomplete" : "Complete"}`}
           </ButtonText>
         </Button>
       </HStack>
@@ -234,6 +264,7 @@ const Todo = () => {
       <VStack flex={1}>
         <TodoBackground />
         <HomestayInfoTabs />
+        <TodoDelete />
         <TodoFooter />
       </VStack>
     </Box>

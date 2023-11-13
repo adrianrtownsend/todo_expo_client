@@ -55,7 +55,7 @@ const TodoForm = () => {
   ] = useMutation(UPDATE_TODO);
   const [formSuccess, setFormSuccess] = useState("");
   const [formError, setFormError] = useState("");
-  const { todo } = route.params;
+  const todo = route.params?.todo;
 
   const {
     control,
@@ -63,21 +63,22 @@ const TodoForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: todo.title ?? "",
-      description: todo.description ?? "",
-      isCompleted: todo.isCompleted ?? false,
+      title: todo?.title ?? "",
+      description: todo?.description ?? "",
+      isCompleted: todo?.isCompleted ?? false,
     },
   });
 
   const onSubmit = async (data) => {
+    console.log("todo: ", todo);
     if (isObjectEmpty(errors)) {
       if (todo) {
-        createTodo({ variables: data }).then(() => {
-          setFormSuccess("Sucessfully created todo");
-        });
-      } else {
         updateTodo({ variables: { ...data, id: todo.id } }).then(() => {
           setFormSuccess("Sucessfully updated todo");
+        });
+      } else {
+        createTodo({ variables: data }).then(() => {
+          setFormSuccess("Sucessfully created todo");
         });
       }
     }
@@ -87,10 +88,25 @@ const TodoForm = () => {
   if (updateError) setFormError(updateError.message);
 
   return (
-    <VStack>
-      <VStack></VStack>
-      <Box>
-        <Box>
+    <VStack p="$3">
+      <VStack m="$2" p="$3">
+        <Heading textAlign="center">Create New Todo</Heading>
+        <Text textAlign="center">
+          Please fill in the information for your new todo item..
+        </Text>
+      </VStack>
+      {formError && (
+        <Box borderRadius="$md" bg="$error100" p="$5">
+          <Text color="$error500">{formError}</Text>
+        </Box>
+      )}
+      {formSuccess && (
+        <Box borderRadius="$md" bg="$success100" p="$5">
+          <Text color="$success500">{formSuccess}</Text>
+        </Box>
+      )}
+      <Box gap="$3">
+        <Box gap="$3">
           <FormControl isRequired isInvalid={!!errors.title}>
             <FormControlLabel>
               <FormControlLabelText>Title</FormControlLabelText>
@@ -145,6 +161,30 @@ const TodoForm = () => {
                 {errors.description?.message}
               </FormControlErrorText>
             </FormControlError>
+          </FormControl>
+
+          <FormControl>
+            <VStack space="sm">
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Checkbox
+                    size="sm"
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                  >
+                    <CheckboxIndicator mr="$2">
+                      <CheckboxIcon>
+                        <CheckIcon />
+                      </CheckboxIcon>
+                    </CheckboxIndicator>
+                    <CheckboxLabel>Mark as Complete?</CheckboxLabel>
+                  </Checkbox>
+                )}
+                name="isCompleted"
+              />
+            </VStack>
           </FormControl>
         </Box>
         <Box>

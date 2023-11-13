@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TextInput, View } from "react-native";
-import { GET_TODOS } from "../../../graphql";
+import { GET_TODOS, GET_USERS } from "../../../graphql";
 import { useQuery } from "@apollo/client";
 import {
   FirebaseProvider,
@@ -21,6 +21,7 @@ import {
 } from "@gluestack-ui/themed";
 import Carousel from "../../../components/Carousel";
 import { useNavigation } from "@react-navigation/native";
+import LoadingWrapper from "../../../components/LoadingWrapper";
 
 const users = [
   {
@@ -60,82 +61,51 @@ const users = [
     isPrivate: false,
   },
 ];
-const todos = [
-  {
-    id: 1,
-    title: "Task 1",
-    isCompleted: false,
-    user: users[0],
-    description: "A task description",
-  },
-  {
-    id: 2,
-    title: "Task 2",
-    isCompleted: true,
-    user: users[0],
-    description: "A task description",
-  },
-  {
-    id: 3,
-    title: "Task 3",
-    isCompleted: false,
-    user: users[1],
-    description: "A task description",
-  },
-  {
-    id: 4,
-    title: "Task 1",
-    isCompleted: false,
-    user: users[3],
-    description: "A task description",
-  },
-  {
-    id: 5,
-    title: "Task 2",
-    isCompleted: true,
-    user: users[0],
-    description: "A task description",
-  },
-  {
-    id: 6,
-    title: "Task 3",
-    isCompleted: false,
-    user: users[2],
-    description: "A task description",
-  },
-  // Add more todos as needed
-];
 
 const TodosCarousel = () => {
+  const { loading, error, data } = useQuery(GET_TODOS);
+
   return (
-    <Carousel
-      type="item"
-      header="Todos"
-      data={todos}
-      subHeader={users[0].username}
-      link={"userTodos"}
-      linkLabel={"View Todos"}
-      itemScreen={"Task"}
-    />
+    <LoadingWrapper isLoading={loading}>
+      <Carousel
+        type="item"
+        header="Todos"
+        data={data?.todos}
+        subHeader={users[0].username}
+        link={"userTodos"}
+        linkLabel={"View Todos"}
+        itemScreen={"Task"}
+      />
+    </LoadingWrapper>
   );
 };
 
 const UsersCarousel = () => {
+  const { loading, error, data } = useQuery(GET_USERS);
+  console.log("data...: ", data);
   return (
     <Carousel
       type="avatar"
-      data={users}
+      data={data?.users}
       header="Users"
       itemScreen={"Profile"}
     />
   );
 };
 
-const StatsCarousel = () => {
-  return (
-    <Carousel type="stat" data={todos} header="Stats (Todos)" link={"stats"} />
-  );
-};
+// const StatsCarousel = () => {
+//   const { loading, error, data } = useQuery(GET_TODOS);
+//   return (
+//     <LoadingWrapper isLoading={loading}>
+//       <Carousel
+//         type="stat"
+//         data={data?.todos}
+//         header="Stats (Todos)"
+//         link={"stats"}
+//       />
+//     </LoadingWrapper>
+//   );
+// };
 
 const CreateTodoFab = () => {
   const navigation = useNavigation();
@@ -158,7 +128,7 @@ const Dashboard = () => {
         <ScrollView>
           <TodosCarousel />
           <UsersCarousel />
-          <StatsCarousel />
+          {/* <StatsCarousel /> */}
         </ScrollView>
       </Box>
       <CreateTodoFab />
