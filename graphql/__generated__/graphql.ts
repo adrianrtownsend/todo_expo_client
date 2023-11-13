@@ -29,14 +29,31 @@ export type Scalars = {
   Float: { input: number; output: number };
 };
 
+export type FirebaseUserRecord = {
+  __typename?: "FirebaseUserRecord";
+  disabled?: Maybe<Scalars["Boolean"]["output"]>;
+  displayName?: Maybe<Scalars["String"]["output"]>;
+  email?: Maybe<Scalars["String"]["output"]>;
+  emailVerified?: Maybe<Scalars["Boolean"]["output"]>;
+  passwordHash?: Maybe<Scalars["String"]["output"]>;
+  passwordSalt?: Maybe<Scalars["String"]["output"]>;
+  phoneNumber?: Maybe<Scalars["String"]["output"]>;
+  photoURL?: Maybe<Scalars["String"]["output"]>;
+  tenantId?: Maybe<Scalars["String"]["output"]>;
+  todos?: Maybe<Array<Maybe<Todo>>>;
+  tokensValidAfterTime?: Maybe<Scalars["String"]["output"]>;
+  uid?: Maybe<Scalars["String"]["output"]>;
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   createTag?: Maybe<Tag>;
   createTodo?: Maybe<Todo>;
-  deleteTag: Tag;
-  deleteTodo: Todo;
-  updateTag: Tag;
-  updateTodo: Todo;
+  deleteTag?: Maybe<Tag>;
+  deleteTodo?: Maybe<Todo>;
+  updateTag?: Maybe<Tag>;
+  updateTodo?: Maybe<Todo>;
+  updateTodoIsCompleted?: Maybe<Todo>;
 };
 
 export type MutationCreateTagArgs = {
@@ -71,6 +88,11 @@ export type MutationUpdateTodoArgs = {
   title?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type MutationUpdateTodoIsCompletedArgs = {
+  id: Scalars["Int"]["input"];
+  isCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+};
+
 export type Query = {
   __typename?: "Query";
   tag?: Maybe<Tag>;
@@ -78,6 +100,8 @@ export type Query = {
   todo?: Maybe<Todo>;
   todos?: Maybe<Array<Maybe<Todo>>>;
   todosByUserId?: Maybe<Array<Maybe<Todo>>>;
+  user?: Maybe<FirebaseUserRecord>;
+  users?: Maybe<Array<Maybe<FirebaseUserRecord>>>;
 };
 
 export type QueryTagArgs = {
@@ -92,6 +116,10 @@ export type QueryTodosByUserIdArgs = {
   userId: Scalars["String"]["input"];
 };
 
+export type QueryUserArgs = {
+  id: Scalars["String"]["input"];
+};
+
 export type Subscription = {
   __typename?: "Subscription";
   tagUpdated?: Maybe<Tag>;
@@ -102,18 +130,25 @@ export type Subscription = {
 
 export type Tag = {
   __typename?: "Tag";
+  createdDate?: Maybe<Scalars["String"]["output"]>;
+  deletedDate?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["Int"]["output"]>;
   isVisible?: Maybe<Scalars["Boolean"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
+  updatedDate?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type Todo = {
   __typename?: "Todo";
+  createdDate?: Maybe<Scalars["String"]["output"]>;
+  deletedDate?: Maybe<Scalars["String"]["output"]>;
   description?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["Int"]["output"]>;
   isCompleted?: Maybe<Scalars["Boolean"]["output"]>;
   tags?: Maybe<Array<Maybe<Tag>>>;
   title?: Maybe<Scalars["String"]["output"]>;
+  updatedDate?: Maybe<Scalars["String"]["output"]>;
+  user?: Maybe<FirebaseUserRecord>;
   userId?: Maybe<Scalars["String"]["output"]>;
 };
 
@@ -134,6 +169,12 @@ export type GetTodosQuery = {
     description?: string | null;
     isCompleted?: boolean | null;
     userId?: string | null;
+    user?: {
+      __typename?: "FirebaseUserRecord";
+      uid?: string | null;
+      email?: string | null;
+      displayName?: string | null;
+    } | null;
     tags?: Array<{
       __typename?: "Tag";
       id?: number | null;
@@ -155,6 +196,12 @@ export type GetTodoQuery = {
     description?: string | null;
     isCompleted?: boolean | null;
     userId?: string | null;
+    user?: {
+      __typename?: "FirebaseUserRecord";
+      uid?: string | null;
+      email?: string | null;
+      displayName?: string | null;
+    } | null;
     tags?: Array<{
       __typename?: "Tag";
       id?: number | null;
@@ -216,18 +263,27 @@ export type UpdateTodoMutationVariables = Exact<{
 
 export type UpdateTodoMutation = {
   __typename?: "Mutation";
-  updateTodo: {
+  updateTodo?: {
     __typename?: "Todo";
     id?: number | null;
     title?: string | null;
     description?: string | null;
     isCompleted?: boolean | null;
-    tags?: Array<{
-      __typename?: "Tag";
-      id?: number | null;
-      name?: string | null;
-    } | null> | null;
-  };
+  } | null;
+};
+
+export type UpdateTodoIsCompletedMutationVariables = Exact<{
+  id: Scalars["Int"]["input"];
+  isCompleted?: InputMaybe<Scalars["Boolean"]["input"]>;
+}>;
+
+export type UpdateTodoIsCompletedMutation = {
+  __typename?: "Mutation";
+  updateTodo?: {
+    __typename?: "Todo";
+    id?: number | null;
+    isCompleted?: boolean | null;
+  } | null;
 };
 
 export type DeleteTodoMutationVariables = Exact<{
@@ -236,7 +292,7 @@ export type DeleteTodoMutationVariables = Exact<{
 
 export type DeleteTodoMutation = {
   __typename?: "Mutation";
-  deleteTodo: { __typename?: "Todo"; id?: number | null };
+  deleteTodo?: { __typename?: "Todo"; id?: number | null } | null;
 };
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>;
@@ -288,12 +344,12 @@ export type UpdateTagMutationVariables = Exact<{
 
 export type UpdateTagMutation = {
   __typename?: "Mutation";
-  updateTag: {
+  updateTag?: {
     __typename?: "Tag";
     id?: number | null;
     name?: string | null;
     isVisible?: boolean | null;
-  };
+  } | null;
 };
 
 export type DeleteTagMutationVariables = Exact<{
@@ -302,7 +358,47 @@ export type DeleteTagMutationVariables = Exact<{
 
 export type DeleteTagMutation = {
   __typename?: "Mutation";
-  deleteTag: { __typename?: "Tag"; id?: number | null };
+  deleteTag?: { __typename?: "Tag"; id?: number | null } | null;
+};
+
+export type GetUsersQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetUsersQuery = {
+  __typename?: "Query";
+  users?: Array<{
+    __typename?: "FirebaseUserRecord";
+    uid?: string | null;
+    email?: string | null;
+    displayName?: string | null;
+    todos?: Array<{
+      __typename?: "Todo";
+      id?: number | null;
+      title?: string | null;
+      description?: string | null;
+      isCompleted?: boolean | null;
+    } | null> | null;
+  } | null> | null;
+};
+
+export type GetUserQueryVariables = Exact<{
+  id: Scalars["String"]["input"];
+}>;
+
+export type GetUserQuery = {
+  __typename?: "Query";
+  user?: {
+    __typename?: "FirebaseUserRecord";
+    uid?: string | null;
+    email?: string | null;
+    displayName?: string | null;
+    todos?: Array<{
+      __typename?: "Todo";
+      id?: number | null;
+      title?: string | null;
+      description?: string | null;
+      isCompleted?: boolean | null;
+    } | null> | null;
+  } | null;
 };
 
 export const GetTodosDocument = {
@@ -326,6 +422,21 @@ export const GetTodosDocument = {
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "isCompleted" } },
                 { kind: "Field", name: { kind: "Name", value: "userId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "user" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "uid" } },
+                      { kind: "Field", name: { kind: "Name", value: "email" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "displayName" },
+                      },
+                    ],
+                  },
+                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "tags" },
@@ -386,6 +497,21 @@ export const GetTodoDocument = {
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "isCompleted" } },
                 { kind: "Field", name: { kind: "Name", value: "userId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "user" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "uid" } },
+                      { kind: "Field", name: { kind: "Name", value: "email" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "displayName" },
+                      },
+                    ],
+                  },
+                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "tags" },
@@ -666,17 +792,6 @@ export const UpdateTodoDocument = {
                 { kind: "Field", name: { kind: "Name", value: "title" } },
                 { kind: "Field", name: { kind: "Name", value: "description" } },
                 { kind: "Field", name: { kind: "Name", value: "isCompleted" } },
-                {
-                  kind: "Field",
-                  name: { kind: "Name", value: "tags" },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      { kind: "Field", name: { kind: "Name", value: "id" } },
-                      { kind: "Field", name: { kind: "Name", value: "name" } },
-                    ],
-                  },
-                },
               ],
             },
           },
@@ -685,6 +800,71 @@ export const UpdateTodoDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateTodoMutation, UpdateTodoMutationVariables>;
+export const UpdateTodoIsCompletedDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateTodoIsCompleted" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "isCompleted" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "updateTodo" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "isCompleted" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "isCompleted" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "isCompleted" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateTodoIsCompletedMutation,
+  UpdateTodoIsCompletedMutationVariables
+>;
 export const DeleteTodoDocument = {
   kind: "Document",
   definitions: [
@@ -991,3 +1171,118 @@ export const DeleteTagDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteTagMutation, DeleteTagMutationVariables>;
+export const GetUsersDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "getUsers" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "users" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "uid" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "displayName" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "todos" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "isCompleted" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUsersQuery, GetUsersQueryVariables>;
+export const GetUserDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "getUser" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "user" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "uid" } },
+                { kind: "Field", name: { kind: "Name", value: "email" } },
+                { kind: "Field", name: { kind: "Name", value: "displayName" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "todos" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "isCompleted" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;

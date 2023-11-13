@@ -1,4 +1,3 @@
-import { DocumentNode } from "graphql";
 import { gql } from "./__generated__/gql";
 
 export const GET_TODOS = gql(`
@@ -9,6 +8,11 @@ export const GET_TODOS = gql(`
       description
       isCompleted
       userId
+      user {
+        uid
+        email
+        displayName
+      }
       tags {
         id
         name
@@ -25,6 +29,11 @@ export const GET_TODO = gql(`
       description
       isCompleted
       userId
+      user {
+        uid
+        email
+        displayName
+      }
       tags {
         id
         name
@@ -90,10 +99,21 @@ export const UPDATE_TODO = gql(`
       title,
       description,
       isCompleted
-      tags {
-        id
-        name
-      }
+    }
+  }
+`);
+
+export const UPDATE_TODO_ISCOMPLETED = gql(`
+  mutation UpdateTodoIsCompleted(
+    $id: Int!
+    $isCompleted: Boolean
+  ) {
+    updateTodo(
+      id: $id,
+      isCompleted: $isCompleted
+    ) {
+      id,
+      isCompleted
     }
   }
 `);
@@ -168,6 +188,38 @@ export const DELETE_TAG = gql(`
       id:$id
     ) {
       id
+    }
+  }
+`);
+
+export const GET_USERS = gql(`
+  query getUsers {
+    users {
+      uid
+      email
+      displayName
+      todos {
+        id
+        title
+        description
+        isCompleted
+      }
+    }
+  }
+`);
+
+export const GET_USER = gql(`
+  query getUser($id: String!) {
+    user(id: $id) {
+      uid
+      email
+      displayName
+      todos {
+        id
+        title
+        description
+        isCompleted
+      }
     }
   }
 `);

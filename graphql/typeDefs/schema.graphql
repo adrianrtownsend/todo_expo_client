@@ -1,7 +1,25 @@
+type FirebaseUserRecord {
+  uid: String
+  email: String
+  emailVerified: Boolean
+  displayName: String
+  photoURL: String
+  phoneNumber: String
+  disabled: Boolean
+  passwordHash: String
+  passwordSalt: String
+  tokensValidAfterTime: String
+  tenantId: String
+  todos: [Todo]
+}
+
 type Tag {
   id: Int
   name: String
   isVisible: Boolean
+  createdDate: String
+  updatedDate: String
+  deletedDate: String
 }
 
 type Todo {
@@ -11,6 +29,10 @@ type Todo {
   isCompleted: Boolean
   userId: String
   tags: [Tag]
+  user: FirebaseUserRecord
+  createdDate: String
+  updatedDate: String
+  deletedDate: String
 }
 
 type tagQueries {
@@ -24,6 +46,8 @@ type Query {
   todosByUserId(userId: String!): [Todo]
   tags: [Tag]
   tag(id: Int!): Tag
+  users: [FirebaseUserRecord]
+  user(id: String!): FirebaseUserRecord
 }
 
 type Mutation {
@@ -33,11 +57,12 @@ type Mutation {
     title: String
     description: String
     isCompleted: Boolean
-  ): Todo!
-  deleteTodo(id: Int!): Todo!
+  ): Todo
+  updateTodoIsCompleted(id: Int!, isCompleted: Boolean): Todo
+  deleteTodo(id: Int!): Todo
   createTag(name: String!, isVisible: Boolean): Tag
-  updateTag(id: Int!, name: String, isVisible: Boolean): Tag!
-  deleteTag(id: Int!): Tag!
+  updateTag(id: Int!, name: String, isVisible: Boolean): Tag
+  deleteTag(id: Int!): Tag
 }
 
 type Subscription {
