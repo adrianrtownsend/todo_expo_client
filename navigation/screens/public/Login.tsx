@@ -1,7 +1,5 @@
 import {
-  MoonIcon,
   AlertCircleIcon,
-  ArrowLeftIcon,
   Box,
   Button,
   ButtonText,
@@ -27,15 +25,15 @@ import {
   VStack,
   HStack,
   Pressable,
-  ScrollView,
 } from "@gluestack-ui/themed";
-import { useState } from "react";
-import { useFirebase } from "../../../contexts/FirebaseContext";
 import { useNavigation } from "@react-navigation/native";
 import { EyeIcon, EyeOffIcon, ChromeIcon } from "lucide-react-native";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { emailRule, passwordRule } from "../../../lib/validation/rules";
+
+import { useFirebase } from "../../../contexts/FirebaseContext";
 import { isObjectEmpty } from "../../../helpers";
+import { emailRule, passwordRule } from "../../../lib/validation/rules";
 
 const Login = () => {
   const firebase = useFirebase();
@@ -170,20 +168,20 @@ const Login = () => {
         </Box>
         <VStack p="$3" gap="$3">
           <HStack justifyContent="center" space="md">
-            <Center width={"$1/5"}>
+            <Center width="$1/5">
               <Divider />
             </Center>
             <Text textAlign="center">Or sign in with</Text>
-            <Center width={"$1/5"}>
+            <Center width="$1/5">
               <Divider />
             </Center>
           </HStack>
-          <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
+          <HStack justifyContent="space-evenly" paddingHorizontal="$1/6">
             <Pressable
               onPress={() => firebase.loginWithGooglePopup()}
               p="$3"
-              borderWidth={"$1"}
-              borderRadius={"$full"}
+              borderWidth="$1"
+              borderRadius="$full"
             >
               <Icon as={ChromeIcon} color="black" />
             </Pressable>

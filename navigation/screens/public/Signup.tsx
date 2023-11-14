@@ -1,24 +1,14 @@
-import { useState } from "react";
+import { useMutation } from "@apollo/client";
 import {
-  MoonIcon,
   AlertCircleIcon,
-  ArrowLeftIcon,
   Box,
   Button,
   ButtonText,
   Center,
-  Checkbox,
-  CheckboxGroup,
-  CheckboxIndicator,
-  CheckboxIcon,
-  CheckIcon,
-  CheckboxLabel,
   Divider,
   FormControl,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelper,
-  FormControlHelperText,
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
@@ -35,13 +25,14 @@ import {
   InputIcon,
   InputSlot,
 } from "@gluestack-ui/themed";
-import { useMutation } from "@apollo/client";
-import { CREATE_USER } from "../../../graphql";
-import { useFirebase } from "../../../contexts/FirebaseContext";
-import { isObjectEmpty } from "../../../helpers";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { EyeIcon, EyeOffIcon, ChromeIcon } from "lucide-react-native";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+
+import { useFirebase } from "../../../contexts/FirebaseContext";
+import { CREATE_USER } from "../../../graphql";
+import { isObjectEmpty } from "../../../helpers";
 import {
   emailRule,
   passwordRule,
@@ -226,7 +217,7 @@ const Signup = () => {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {"Passwords must match"}
+                  Passwords must match
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -244,20 +235,20 @@ const Signup = () => {
         </Box>
         <VStack p="$3" gap="$3">
           <HStack justifyContent="center" space="md">
-            <Center width={"$1/5"}>
+            <Center width="$1/5">
               <Divider />
             </Center>
             <Text textAlign="center">Or sign up with</Text>
-            <Center width={"$1/5"}>
+            <Center width="$1/5">
               <Divider />
             </Center>
           </HStack>
-          <HStack justifyContent="space-evenly" paddingHorizontal={"$1/6"}>
+          <HStack justifyContent="space-evenly" paddingHorizontal="$1/6">
             <Pressable
               onPress={() => firebase.loginWithGooglePopup()}
               p="$3"
-              borderWidth={"$1"}
-              borderRadius={"$full"}
+              borderWidth="$1"
+              borderRadius="$full"
             >
               <Icon as={ChromeIcon} color="black" />
             </Pressable>

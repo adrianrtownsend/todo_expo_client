@@ -1,23 +1,16 @@
-import { useState } from "react";
 import {
-  MoonIcon,
   AlertCircleIcon,
-  ArrowLeftIcon,
   Box,
   Button,
   ButtonText,
   Center,
-  Divider,
   FormControl,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelper,
-  FormControlHelperText,
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
   Heading,
-  Icon,
   Input,
   InputField,
   Link,
@@ -26,12 +19,13 @@ import {
   VStack,
   HStack,
 } from "@gluestack-ui/themed";
-import { useForm, Controller } from "react-hook-form";
 import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 
-import { emailRule } from "../../../lib/validation/rules";
 import { useFirebase } from "../../../contexts/FirebaseContext";
 import { isObjectEmpty } from "../../../helpers";
+import { emailRule } from "../../../lib/validation/rules";
 
 const ForgotPassword = () => {
   const firebase = useFirebase();
