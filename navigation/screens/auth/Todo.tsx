@@ -1,49 +1,32 @@
-import * as React from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import {
-  Avatar,
   Box,
   Center,
   Heading,
   Image,
-  Icon,
   Text,
   HStack,
   VStack,
   Pressable,
-  ButtonText,
   Button,
-  Progress,
-  ProgressFilledTrack,
-  Tooltip,
-  View,
 } from "@gluestack-ui/themed";
-import { ChevronRight, Heart, Star, User } from "lucide-react-native";
-import { AnimatePresence, Motion } from "@legendapp/motion";
-import { ImageBackground, ScrollView } from "react-native";
-import { useMutation, useQuery } from "@apollo/client";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import * as React from "react";
+import { ScrollView } from "react-native";
+
+import ConfirmModal from "../../../components/ConfirmModal";
+import UserCard from "../../../components/UserCard";
 import {
   GET_TODO,
   UPDATE_TODO_ISCOMPLETED,
   DELETE_TODO,
+  GET_TODOS,
 } from "../../../graphql";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import UserCard from "../../../components/UserCard";
 
 const tabsData = [
   {
     title: "About",
   },
-  {
-    title: "Activity",
-  },
-];
-
-const statsData = [
-  { label: "Created date", data: "Feb 2, 2023" },
-  { label: "Created date", data: "Feb 2, 2023" },
-  { label: "Created date", data: "Feb 2, 2023" },
-  { label: "Created date", data: "Feb 2, 2023" },
-  { label: "Created date", data: "Feb 2, 2023" },
 ];
 
 const Todo = () => {
@@ -61,22 +44,30 @@ const Todo = () => {
   const [
     deleteTodo,
     { data: deleteData, loading: deleteLoading, error: deleteError },
-  ] = useMutation(DELETE_TODO);
+  ] = useMutation(DELETE_TODO, {
+    update(cache, { data: { delete_todo } }) {
+      const existingTodos: any = cache.readQuery({ query: GET_TODOS });
+      const newTodos = existingTodos!.todos.filter(
+        (t: any) => t.id !== delete_todo.id,
+      );
+      cache.writeQuery({
+        query: GET_TODOS,
+        data: { todos: newTodos },
+      });
+    },
+  });
 
   if (loading) {
     return <Text>loading...</Text>;
   }
   if (error) return <Text>Error: {error.message}</Text>;
 
-  // const data = {
-  //   id: 99,
-  //   title: "Johns todo",
-  //   description: "A description",
-  //   isCompleted: false,
-  // };
-
-  // const { id, title, description, isCompleted } = data;
   const { todo } = data;
+
+  const statsData = [
+    { label: "Created Date", data: todo.created_at },
+    { label: "Completed Date", data: todo.completed_at },
+  ];
 
   const handleUpdateIsCompleted = (complete: boolean) => {
     updateTodoIsCompleted({
@@ -97,14 +88,14 @@ const Todo = () => {
 
   const TodoBackground = () => {
     return (
-      <Box width={"100%"} flex={1}>
+      <Box width="100%" flex={1}>
         <Image
           source={{
             uri: "https://media.vanityfair.com/photos/5ba12e6d42b9d16f4545aa19/3:2/w_1998,h_1332,c_limit/t-Avatar-The-Last-Airbender-Live-Action.jpg",
           }}
           alt="Aang flying and surrounded by clouds"
           flex={1}
-          width={"100%"}
+          width="100%"
         />
       </Box>
     );
@@ -122,11 +113,17 @@ const Todo = () => {
           <UserCard
             displayName={todo.user.displayName}
             email={todo.user.email}
+            userId={todo.user.userId}
           />
         </Box>
         <Box>
           <Heading>Info</Heading>
-          <Box flexWrap="wrap" flexDirection="row" gap={"$5"}>
+          <Center
+            flexWrap="wrap"
+            flexDirection="row"
+            justifyContent="space-around"
+            gap="$5"
+          >
             {statsData.map((s, i) => {
               return (
                 <VStack key={i}>
@@ -135,54 +132,26 @@ const Todo = () => {
                 </VStack>
               );
             })}
-          </Box>
+          </Center>
         </Box>
       </VStack>
     );
   };
 
-  const TodoDelete = () => {
-    return (
-      <HStack justifyContent="space-between">
-        <Box>
-          <Text>Delete Todo</Text>
-        </Box>
-        <Button onPress={handleDeleteTodo}>
-          {deleteLoading ? "Deleting..." : "Delete"}
-        </Button>
-      </HStack>
-    );
-  };
-
   const HomestayInfoTabs = () => {
     return (
-      <Box
-        borderRadius={"$md"}
-        backgroundColor="white"
-        borderBottomWidth={1}
-        borderColor="$borderLight50"
-        sx={{
-          "@md": { borderColor: "transparent", borderBottomWidth: 0 },
-          _dark: { borderColor: "$borderDark900" },
-        }}
-        flex={3}
-      >
-        <VStack>
-          <HStack justifyContent="space-between">
-            <Text>id</Text>
-            <Text>title</Text>
-          </HStack>
-          <Heading textAlign="center">{todo?.title}</Heading>
-          <HStack justifyContent="space-between">
-            <Text>id</Text>
-            <Text>title</Text>
-            <Text>description</Text>
-          </HStack>
+      <Box flex={3}>
+        <VStack gap="$3">
+          <VStack p="$3">
+            <Heading textAlign="center">{todo?.title}</Heading>
+            <Text>{todo.user.displayName}</Text>
+          </VStack>
           <HStack
             space="lg"
             mx="$0.5"
-            borderBottomWidth={"$1"}
+            borderBottomWidth="$1"
             justifyContent="space-between"
+            px="$3"
           >
             {tabsData.map((tab: any) => {
               return (
@@ -230,7 +199,7 @@ const Todo = () => {
             })}
           </HStack>
         </VStack>
-        <ScrollView showsHorizontalScrollIndicator={false}>
+        <ScrollView>
           <TodoTabContainer tab={activeTab} />
         </ScrollView>
       </Box>
@@ -239,32 +208,44 @@ const Todo = () => {
 
   const TodoFooter = () => {
     return (
-      <HStack justifyContent="space-between">
-        <VStack>
-          <Text>{"Status"}</Text>
-          <Text>{todo.isCompleted ? "Complete" : "Incomplete"}</Text>
-        </VStack>
+      <HStack justifyContent="space-between" gap="$3" p="$3">
         <Button
-          bg="$darkBlue600"
           onPress={() => handleUpdateIsCompleted(!todo.isCompleted)}
           disabled={updateLoading}
+          flex={3}
         >
-          <ButtonText fontSize="$sm" fontWeight="$medium">
-            {updateLoading
-              ? "Updating..."
-              : `Mark ${todo.isCompleted ? "Incomplete" : "Complete"}`}
-          </ButtonText>
+          {updateLoading
+            ? "Updating..."
+            : `Mark ${todo.isCompleted ? "Incomplete" : "Complete"}`}
         </Button>
+
+        <ConfirmModal
+          text="Are you sure you want to delete this todo?"
+          header="Confirm Delete"
+          submit={{
+            label: "Delete",
+            action: handleDeleteTodo,
+            loading: deleteLoading,
+            data: !!deleteData,
+          }}
+          confirm={{
+            text: "Successfully deleted todo",
+            button: {
+              label: "Return to Dashbboard",
+              action: () => navigation.navigate("Dashboard"),
+            },
+          }}
+          cancel={{ label: "Cancel" }}
+        />
       </HStack>
     );
   };
 
   return (
-    <Box width={"100%"} height={"100%"}>
+    <Box width="100%" height="100%">
       <VStack flex={1}>
         <TodoBackground />
         <HomestayInfoTabs />
-        <TodoDelete />
         <TodoFooter />
       </VStack>
     </Box>
