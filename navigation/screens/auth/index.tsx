@@ -1,13 +1,13 @@
-import * as React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Dashboard from "./Dashboard";
-import Todo from "./Todo";
-import Profile from "./Profile";
-import Information from "./Information";
-import Settings from "./Settings";
 import { Home, User, Settings as SettingsIcon } from "lucide-react-native";
-import { useFirebase } from "../../../contexts/FirebaseContext";
+import * as React from "react";
+
+import Dashboard from "./Dashboard";
+import Information from "./Information";
+import Profile from "./Profile";
+import Settings from "./Settings";
+import Todo from "./Todo";
 import TodoForm from "./TodoForm";
 
 const Tab = createBottomTabNavigator();
@@ -26,7 +26,7 @@ const TodoNavigator = () => {
       <TodoStack.Screen
         name="Todo"
         component={Todo}
-        // options={{ presentation: "modal" }}
+        options={{ presentation: "modal" }}
       />
       <TodoStack.Screen
         name="TodoForm"
@@ -73,7 +73,10 @@ const AuthNavigator = () => {
       <Tab.Screen
         name="Todo"
         component={TodoNavigator}
-        options={{ headerShown: false, tabBarShowLabel: false }}
+        options={{
+          headerShown: false,
+          tabBarShowLabel: false,
+        }}
       />
       <Tab.Screen
         name="Profile"
