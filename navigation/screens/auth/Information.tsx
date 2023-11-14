@@ -1,38 +1,17 @@
-import { useState } from "react";
 import {
-  MoonIcon,
-  AlertCircleIcon,
-  ArrowLeftIcon,
-  Box,
   Button,
   ButtonText,
   Center,
-  Checkbox,
-  CheckboxGroup,
-  CheckboxIndicator,
-  CheckboxIcon,
-  CheckIcon,
-  CheckboxLabel,
-  Divider,
   FormControl,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelper,
-  FormControlHelperText,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
   Heading,
-  Icon,
   Input,
   InputField,
-  Link,
-  LinkText,
   Text,
   VStack,
-  HStack,
 } from "@gluestack-ui/themed";
-
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 import { useFirebase } from "../../../contexts/FirebaseContext";
@@ -69,7 +48,7 @@ const Information = () => {
 
   return (
     <VStack>
-      <Center marginVertical={"$10"}>
+      <Center marginVertical="$10">
         <Heading>Create Account</Heading>
         <Text>
           Fill your information below or register with you social account.

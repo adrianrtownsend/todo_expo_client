@@ -1,25 +1,17 @@
 import {
   Box,
-  Center,
-  Heading,
   Image,
-  Icon,
   Text,
   HStack,
   VStack,
   Pressable,
-  ButtonText,
   Button,
-  Progress,
-  ProgressFilledTrack,
-  Tooltip,
-  View,
 } from "@gluestack-ui/themed";
-import React from "react";
-import { ChevronRight, Heart, Star } from "lucide-react-native";
-import { AnimatePresence, Motion } from "@legendapp/motion";
-import Complete from "./Complete";
 import { useNavigation } from "@react-navigation/native";
+import { ChevronRight } from "lucide-react-native";
+import React from "react";
+
+import Complete from "./Complete";
 import { truncateString } from "../helpers";
 
 interface ItemThumbnailProps {
@@ -108,7 +100,7 @@ const ItemThumbnail = ({
           );
         }}
       </Pressable>
-      <Complete isChecked={isCompleted} />
+      <Complete id={id} isChecked={isCompleted} />
       <Pressable
         w="100%"
         onPress={() =>
@@ -121,7 +113,7 @@ const ItemThumbnail = ({
         <HStack justifyContent="space-between" py="$2" alignItems="flex-start">
           <VStack space="$sm" flex={1}>
             <Text fontWeight="$semibold">{title}</Text>
-            <Text size="sm">{userId}</Text>
+            <Text size="sm">{user.displayName || user.email}</Text>
             <HStack>
               <Text size="sm">
                 {description && truncateString(description)}

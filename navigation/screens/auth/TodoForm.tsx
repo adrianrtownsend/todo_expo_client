@@ -1,58 +1,42 @@
-import { useState } from "react";
+import { useMutation } from "@apollo/client";
 import {
-  MoonIcon,
   AlertCircleIcon,
-  ArrowLeftIcon,
   Box,
   Button,
   ButtonText,
-  Center,
   Checkbox,
-  CheckboxGroup,
   CheckboxIndicator,
   CheckboxIcon,
   CheckIcon,
   CheckboxLabel,
-  Divider,
   FormControl,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelper,
-  FormControlHelperText,
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
   Heading,
-  Icon,
   Input,
   InputField,
-  Link,
-  LinkText,
   Text,
   VStack,
-  HStack,
-  Pressable,
-  InputIcon,
-  InputSlot,
   Textarea,
   TextareaInput,
 } from "@gluestack-ui/themed";
-import { useMutation } from "@apollo/client";
-import { isObjectEmpty } from "../../../helpers";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { useRoute } from "@react-navigation/native";
+
 import { CREATE_TODO, UPDATE_TODO } from "../../../graphql";
+import { isObjectEmpty } from "../../../helpers";
 
 const TodoForm = () => {
   const route = useRoute();
-  const [
-    createTodo,
-    { data: createData, loading: createLoading, error: createError },
-  ] = useMutation(CREATE_TODO);
-  const [
-    updateTodo,
-    { data: updateData, loading: updateLoading, error: updateError },
-  ] = useMutation(UPDATE_TODO);
+  const navigation = useNavigation();
+  const [createTodo, { loading: createLoading, error: createError }] =
+    useMutation(CREATE_TODO);
+  const [updateTodo, { loading: updateLoading, error: updateError }] =
+    useMutation(UPDATE_TODO);
   const [formSuccess, setFormSuccess] = useState("");
   const [formError, setFormError] = useState("");
   const todo = route.params?.todo;
@@ -77,9 +61,17 @@ const TodoForm = () => {
           setFormSuccess("Sucessfully updated todo");
         });
       } else {
-        createTodo({ variables: data }).then(() => {
-          setFormSuccess("Sucessfully created todo");
-        });
+        createTodo({ variables: data })
+          .then((res) => {
+            navigation.navigate("Todo", {
+              screen: "Todo",
+              params: { todoId: res.data?.createTodo.id },
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            setFormError("There was an error creating todo");
+          });
       }
     }
   };

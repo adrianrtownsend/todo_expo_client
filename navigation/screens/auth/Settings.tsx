@@ -1,24 +1,10 @@
-import {
-  Box,
-  Center,
-  FlatList,
-  Pressable,
-  VStack,
-  HStack,
-  Text,
-} from "@gluestack-ui/themed";
-import Avatar from "../../../components/Avatar";
-import React, { ReactNode } from "react";
-import { useFirebase } from "../../../contexts/FirebaseContext";
-import MenuList from "../../../components/MenuList";
+import { Center, VStack } from "@gluestack-ui/themed";
 import { useNavigation } from "@react-navigation/native";
+import React from "react";
 
-interface MenuItemsProps {
-  id: number;
-  name: string;
-  label?: string;
-  action?: () => ReactNode;
-}
+import Avatar from "../../../components/Avatar";
+import MenuList from "../../../components/MenuList";
+import { useFirebase } from "../../../contexts/FirebaseContext";
 
 const Settings = () => {
   const firebase = useFirebase();
