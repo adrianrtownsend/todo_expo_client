@@ -1,29 +1,41 @@
+import { useMutation } from "@apollo/client";
 import { Pressable, Icon } from "@gluestack-ui/themed";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { CheckCircle2 } from "lucide-react-native";
-import { useState } from "react";
+
+import { UPDATE_TODO_ISCOMPLETED } from "../graphql";
 
 interface CompleteProps {
+  id: number;
   isChecked: boolean;
-  onChecked?: () => void;
+  onCheck?: () => void;
   isChangingCheck?: boolean;
 }
 
 const Complete = ({
+  id,
   isChecked = false,
-  onChecked,
   isChangingCheck,
 }: CompleteProps) => {
-  const [checked, setChecked] = useState(false);
+  const [updateTodoIsCompleted] = useMutation(UPDATE_TODO_ISCOMPLETED);
+
+  const onCheck = () => {
+    updateTodoIsCompleted({
+      variables: {
+        id,
+        isCompleted: !isChecked,
+      },
+    });
+  };
 
   return (
     <>
       <Pressable
         onPress={() => {
           if (isChangingCheck) return;
-          setChecked(!checked);
-          onChecked;
+          onCheck();
         }}
+        disabled={isChangingCheck}
         position="absolute"
         top={12}
         right={16}
