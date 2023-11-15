@@ -1,22 +1,16 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { Box } from "@gluestack-ui/themed";
 import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import AuthNavigator from "./screens/auth";
 import PublicNavigator from "./screens/public";
+import LoadingWrapper from "../components/LoadingWrapper";
 import { useFirebase } from "../contexts/FirebaseContext";
-import { Center, Box, Spinner } from "@gluestack-ui/themed";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
 const Stack = createNativeStackNavigator();
 
-const SplashScreen = () => {
-  return (
-    <Center flex={1}>
-      <Spinner size="large" />
-    </Center>
-  );
-};
-
-const Navigation = (props: {}) => {
+const Navigation = (props: object) => {
   const firebase = useFirebase();
   const client = new ApolloClient({
     uri: process.env.EXPO_PUBLIC_APOLLO_CLIENT_SERVER_URL,
@@ -35,7 +29,7 @@ const Navigation = (props: {}) => {
             {firebase.loading ? (
               <Stack.Screen
                 name="Splash"
-                component={SplashScreen}
+                component={LoadingWrapper}
                 options={{ headerShown: false }}
               />
             ) : firebase.user ? (

@@ -10,16 +10,25 @@ import {
 } from "@gluestack-ui/themed";
 import { useNavigation } from "@react-navigation/native";
 import React, { ReactNode } from "react";
+import { truncateString } from "../helpers";
 
 interface AvatarProps {
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  src?: string;
+  uid: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
   badge?: ReactNode;
+  hideLabel?: boolean;
 }
 
-const Avatar = ({ name, src, firstName, lastName, badge }: AvatarProps) => {
+const Avatar = ({
+  uid,
+  email,
+  displayName,
+  photoURL,
+  badge,
+  hideLabel = false,
+}: AvatarProps) => {
   const navigation = useNavigation();
 
   return (
@@ -28,18 +37,19 @@ const Avatar = ({ name, src, firstName, lastName, badge }: AvatarProps) => {
         flex={1}
         onPress={() =>
           navigation.navigate("Profile", {
-            userId: 1,
+            screen: "Profile",
+            params: {
+              userId: uid,
+            },
           })
         }
       >
         <Center>
           <GSAvatar bgColor="$amber600" size="md" borderRadius="$full">
-            <AvatarFallbackText>
-              {name || `${firstName} ${lastName}`}
-            </AvatarFallbackText>
+            <AvatarFallbackText>{displayName || email}</AvatarFallbackText>
             <AvatarImage
               source={{
-                uri: src,
+                uri: photoURL,
               }}
             />
             <AvatarBadge
@@ -51,9 +61,9 @@ const Avatar = ({ name, src, firstName, lastName, badge }: AvatarProps) => {
             />
           </GSAvatar>
         </Center>
-        <Text textAlign="center">
-          {name || `${firstName} ${lastName ? lastName.slice(0, 1) : ""}`}
-        </Text>
+        {!hideLabel && (
+          <Text textAlign="center">{truncateString(displayName || email)}</Text>
+        )}
       </Pressable>
     </VStack>
   );

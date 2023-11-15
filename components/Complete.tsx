@@ -1,21 +1,41 @@
+import { useMutation } from "@apollo/client";
 import { Pressable, Icon } from "@gluestack-ui/themed";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { CheckCircle2 } from "lucide-react-native";
-import { useState } from "react";
+
+import { UPDATE_TODO_ISCOMPLETED } from "../graphql";
 
 interface CompleteProps {
-  isChecked?: boolean;
+  id: number;
+  isChecked: boolean;
+  onCheck?: () => void;
+  isChangingCheck?: boolean;
 }
 
-const Complete = ({ isChecked = false }: CompleteProps) => {
-  const [checked, setChecked] = useState(false);
+const Complete = ({
+  id,
+  isChecked = false,
+  isChangingCheck,
+}: CompleteProps) => {
+  const [updateTodoIsCompleted] = useMutation(UPDATE_TODO_ISCOMPLETED);
+
+  const onCheck = () => {
+    updateTodoIsCompleted({
+      variables: {
+        id,
+        isCompleted: !isChecked,
+      },
+    });
+  };
 
   return (
     <>
       <Pressable
         onPress={() => {
-          setChecked(!checked);
+          if (isChangingCheck) return;
+          onCheck();
         }}
+        disabled={isChangingCheck}
         position="absolute"
         top={12}
         right={16}
@@ -27,7 +47,7 @@ const Complete = ({ isChecked = false }: CompleteProps) => {
       >
         <AnimatePresence>
           <Motion.View
-            key={checked ? "checked" : "unchecked"}
+            key={isChecked ? "checked" : "unchecked"}
             initial={{
               scale: 1.3,
             }}
@@ -50,8 +70,8 @@ const Complete = ({ isChecked = false }: CompleteProps) => {
             <Icon
               as={CheckCircle2}
               size="xl"
-              color={checked ? "white" : "white"}
-              fill={checked ? "green" : "gray"}
+              color={isChecked ? "white" : "white"}
+              fill={isChecked ? "$green300" : "$gray300"}
             />
           </Motion.View>
         </AnimatePresence>
